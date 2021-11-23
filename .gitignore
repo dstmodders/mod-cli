@@ -3,3 +3,6 @@
 
 ### VisualStudioCode ###
 .vscode/
+
+### Project ###
+dist/

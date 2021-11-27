@@ -49,3 +49,114 @@ jobs:
       - name: Send Slack notification
         if: ${{ !env.ACT && env.SLACK_CUSTOM_PAYLOAD && always() }}
         uses: Ilshidur/action-slack@2.1.0
+
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v2
+      - name: Set a job-wide environment variables
+        run: |
+          echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      - name: Set up Go ${{ env.GO_VERSION }}
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Set up cache
+        if: ${{ !env.ACT }}
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: latest
+          args: release --snapshot --rm-dist
+      - name: Capture x86_64 (64-bit) macOS binary
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: mod-macos-amd64
+          path: dist/mod-cli_darwin_amd64/mod
+      - name: Capture arm64 (64-bit) macOS binary
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: mod-macos-arm64
+          path: dist/mod-cli_darwin_arm64/mod
+      - name: Capture i386 (32-bit) Linux binary
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: mod-linux-i386
+          path: dist/mod-cli_linux_386/mod
+      - name: Capture x86_64 (64-bit) Linux binary
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: mod-linux-amd64
+          path: dist/mod-cli_linux_amd64/mod
+      - name: Capture arm64 (64-bit) Linux binary
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: mod-linux-arm64
+          path: dist/mod-cli_linux_arm64/mod
+      - name: Capture armv6 (32-bit) Linux binary
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: mod-linux-armv6
+          path: dist/mod-cli_linux_arm_6/mod
+      - name: Capture armv7 (32-bit) Linux binary
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: mod-linux-armv7
+          path: dist/mod-cli_linux_arm_7/mod
+      - name: Capture i386 (32-bit) Windows binary
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: mod-windows-i386
+          path: dist/mod-cli_windows_386/mod.exe
+      - name: Capture x86_64 (64-bit) Windows binary
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: mod-windows-amd64
+          path: dist/mod-cli_windows_amd64/mod.exe
+      - name: Capture arm64 (64-bit) Windows binary
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: mod-windows-arm64
+          path: dist/mod-cli_windows_arm64/mod.exe
+      - name: Capture armv6 (32-bit) Windows binary
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: mod-windows-armv6
+          path: dist/mod-cli_windows_arm_6/mod.exe
+      - name: Capture armv7 (32-bit) Windows binary
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: mod-windows-armv7
+          path: dist/mod-cli_windows_arm_7/mod.exe
+      - name: Prepare success Slack notification
+        if: ${{ success() }}
+        run: echo "SLACK_CUSTOM_PAYLOAD=${SLACK_CUSTOM_PAYLOAD}" >> $GITHUB_ENV
+        env:
+          SLACK_CUSTOM_PAYLOAD: '{"channel":"{{ SLACK_CHANNEL }}","attachments":[{"color":"{{ SLACK_COLOR_SUCCESS }}","fallback":"GitHub Actions {{ GITHUB_WORKFLOW }} / ${{ github.job }} / Go {{ GO_VERSION }} job of {{ GITHUB_REPOSITORY }}@{{ BRANCH_NAME }} by {{ GITHUB_ACTOR }} has passed","blocks":[{"type":"section","text":{"type":"mrkdwn","text":"GitHub Actions <https://github.com/{{ GITHUB_REPOSITORY }}/actions/runs/{{ GITHUB_RUN_ID }}|{{ GITHUB_WORKFLOW }} / ${{ github.job }} / Go {{ GO_VERSION }}> job of <https://github.com/{{ GITHUB_REPOSITORY }}|{{ GITHUB_REPOSITORY }}>@<https://github.com/{{ GITHUB_REPOSITORY }}/tree/{{ BRANCH_NAME }}|{{ BRANCH_NAME }}> by <https://github.com/{{ GITHUB_ACTOR }}|{{ GITHUB_ACTOR }}> has passed"}}]}]}'
+      - name: Prepare failure Slack notification
+        if: ${{ failure() }}
+        run: echo "SLACK_CUSTOM_PAYLOAD=${SLACK_CUSTOM_PAYLOAD}" >> $GITHUB_ENV
+        env:
+          SLACK_CUSTOM_PAYLOAD: '{"channel":"{{ SLACK_CHANNEL }}","attachments":[{"color":"{{ SLACK_COLOR_FAILURE }}","fallback":"GitHub Actions {{ GITHUB_WORKFLOW }} / ${{ github.job }} / Go {{ GO_VERSION }} job of {{ GITHUB_REPOSITORY }}@{{ BRANCH_NAME }} by {{ GITHUB_ACTOR }} has failed","blocks":[{"type":"section","text":{"type":"mrkdwn","text":"GitHub Actions <https://github.com/{{ GITHUB_REPOSITORY }}/actions/runs/{{ GITHUB_RUN_ID }}|{{ GITHUB_WORKFLOW }} / ${{ github.job }} / Go {{ GO_VERSION }}> job of <https://github.com/{{ GITHUB_REPOSITORY }}|{{ GITHUB_REPOSITORY }}>@<https://github.com/{{ GITHUB_REPOSITORY }}/tree/{{ BRANCH_NAME }}|{{ BRANCH_NAME }}> by <https://github.com/{{ GITHUB_ACTOR }}|{{ GITHUB_ACTOR }}> has failed"}}]}]}'
+      - name: Send Slack notification
+        if: ${{ !env.ACT && env.SLACK_CUSTOM_PAYLOAD && always() }}
+        uses: Ilshidur/action-slack@2.1.0

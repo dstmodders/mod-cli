@@ -1,10 +1,12 @@
-package config
+package mod_cli
 
 import (
 	"errors"
 	"fmt"
 	"os"
 	"reflect"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Controller interface {
@@ -17,7 +19,7 @@ type Config struct {
 	yaml     YAML
 }
 
-func New() *Config {
+func NewConfig() *Config {
 	return &Config{
 		Workshop: Workshop{},
 	}
@@ -87,6 +89,29 @@ func (c *Config) Load(file *os.File) error {
 	}
 
 	return nil
+}
+
+type YAML struct {
+	Workshop interface{} `yaml:"workshop"`
+}
+
+func NewYAML() *YAML {
+	return &YAML{}
+}
+
+func (y *YAML) UnmarshalFile(file *os.File) error {
+	stat, err := file.Stat()
+	if err != nil {
+		return err
+	}
+
+	in := make([]byte, stat.Size())
+	_, err = file.Read(in)
+	if err != nil {
+		return err
+	}
+
+	return yaml.Unmarshal(in, &y)
 }
 
 type Workshop struct {

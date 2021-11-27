@@ -6,9 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/dstmodders/mod-cli/cmd/changelog"
-	"github.com/dstmodders/mod-cli/cmd/info"
-	"github.com/dstmodders/mod-cli/config"
+	"github.com/dstmodders/mod-cli"
 	"github.com/dstmodders/mod-cli/modinfo"
 	"github.com/yuin/gopher-lua"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -25,7 +23,7 @@ var (
 		"Different modding tools by Depressed DST Modders for Klei's game Don't Starve Together.",
 	)
 
-	cfg = config.New()
+	cfg = mod_cli.NewConfig()
 
 	appConfig = app.Flag("config", "Path to configurations file.").Short('c').Default(".modcli").String()
 
@@ -95,7 +93,7 @@ func loadConfig() {
 func runChangelog() error {
 	path := *changelogCmdPath
 
-	c := changelog.New()
+	c := mod_cli.NewChangelog()
 	c.Count = *changelogCmdCount
 	c.First = *changelogCmdFirst
 	c.Latest = *changelogCmdLatest
@@ -127,7 +125,7 @@ func runInfo() error {
 		return err
 	}
 
-	i := info.New(m)
+	i := mod_cli.NewInfo(m)
 	i.Compatability = *infoCmdCompatability
 	i.Configuration = *infoCmdConfiguration
 	i.ConfigurationMarkdown = *infoCmdConfigurationMarkdown

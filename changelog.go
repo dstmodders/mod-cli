@@ -1,4 +1,4 @@
-package changelog
+package mod_cli
 
 import (
 	"errors"
@@ -24,7 +24,7 @@ type Changelog struct {
 	Source       []byte
 }
 
-func New() *Changelog {
+func NewChangelog() *Changelog {
 	return &Changelog{}
 }
 

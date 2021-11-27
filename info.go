@@ -1,4 +1,4 @@
-package info
+package mod_cli
 
 import (
 	"fmt"
@@ -21,7 +21,7 @@ type Info struct {
 	modinfo               *modinfo.ModInfo
 }
 
-func New(modinfo *modinfo.ModInfo) *Info {
+func NewInfo(modinfo *modinfo.ModInfo) *Info {
 	return &Info{
 		Compatability: true,
 		Configuration: true,

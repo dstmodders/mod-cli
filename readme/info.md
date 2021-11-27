@@ -25,7 +25,7 @@ Mod info tools.
 Flags:
   -h, --help                    Show context-sensitive help (also try --help-long and --help-man).
   -v, --version                 Show application version.
-      --compatibility           Show compatability fields.
+      --compatibility           Show compatibility fields.
   -c, --configuration           Show configuration options with their default values.
   -m, --configuration-markdown  Show configuration options with their default values as a Markdown table.
   -d, --description             Show description.
@@ -67,7 +67,7 @@ Version: 0.8.0-alpha
 
 An extendable mod, that simplifies the most common tasks for both developers and testers as an alternative to debugkeys.
 
-[COMPATABILITY]
+[COMPATIBILITY]
 
 Don't Starve Compatible: no
 Don't Starve Together Compatible: yes

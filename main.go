@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/dstmodders/mod-cli"
+	lua "github.com/yuin/gopher-lua"
+
 	"github.com/dstmodders/mod-cli/modinfo"
-	"github.com/yuin/gopher-lua"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -21,7 +21,7 @@ var (
 		"Different modding tools by Depressed DST Modders for Klei's game Don't Starve Together.",
 	)
 
-	cfg = mod_cli.NewConfig()
+	cfg = NewConfig()
 
 	appConfig = app.Flag("config", "Path to configurations file.").Short('c').Default(".modcli").String()
 
@@ -35,7 +35,7 @@ var (
 
 	infoCmd                      = app.Command("info", "Mod info tools.")
 	infoCmdPath                  = infoCmd.Arg("path", "Path to modinfo.lua.").Default("modinfo.lua").String()
-	infoCmdCompatability         = infoCmd.Flag("compatibility", "Show compatability fields.").Bool()
+	infoCmdCompatibility         = infoCmd.Flag("compatibility", "Show compatibility fields.").Bool()
 	infoCmdConfiguration         = infoCmd.Flag("configuration", "Show configuration options with their default values.").Bool()
 	infoCmdConfigurationMarkdown = infoCmd.Flag("configuration-markdown", "Show configuration options with their default values as a Markdown table.").Short('m').Bool()
 	infoCmdDescription           = infoCmd.Flag("description", "Show description.").Short('d').Bool()
@@ -62,14 +62,14 @@ func loadConfig() {
 		if errors.Is(err, os.ErrNotExist) {
 			fatalError(
 				errMsg,
-				errors.New(fmt.Sprintf("open %s: no such file", *appConfig)),
+				fmt.Errorf("open %s: no such file", *appConfig),
 			)
 		}
 
 		if stat.IsDir() {
 			fatalError(
 				errMsg,
-				errors.New(fmt.Sprintf("open %s: expected file but got directory", *appConfig)),
+				fmt.Errorf("open %s: expected file but got directory", *appConfig),
 			)
 		}
 	}
@@ -91,7 +91,7 @@ func loadConfig() {
 func runChangelog() error {
 	path := *changelogCmdPath
 
-	c := mod_cli.NewChangelog()
+	c := NewChangelog()
 	c.Count = *changelogCmdCount
 	c.First = *changelogCmdFirst
 	c.Latest = *changelogCmdLatest
@@ -123,8 +123,8 @@ func runInfo() error {
 		return err
 	}
 
-	i := mod_cli.NewInfo(m)
-	i.Compatability = *infoCmdCompatability
+	i := NewInfo(m)
+	i.Compatibility = *infoCmdCompatibility
 	i.Configuration = *infoCmdConfiguration
 	i.ConfigurationMarkdown = *infoCmdConfigurationMarkdown
 	i.Description = *infoCmdDescription

@@ -1,4 +1,4 @@
-package mod_cli
+package main
 
 import (
 	"errors"
@@ -9,26 +9,22 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Controller interface {
-	Load(path string) error
-}
-
 type Config struct {
-	Workshop Workshop
+	Workshop ConfigYWorkshop
 	file     *os.File
-	yaml     YAML
+	yaml     ConfigYAML
 }
 
 func NewConfig() *Config {
 	return &Config{
-		Workshop: Workshop{},
+		Workshop: ConfigYWorkshop{},
 	}
 }
 
 func invalidValueError(name string, args ...interface{}) error {
 	errStr := fmt.Sprintf("invalid YAML %s value", name)
 	if len(args) > 0 {
-		return errors.New(fmt.Sprintf("%s: %s", errStr, args[0].(string)))
+		return fmt.Errorf("%s: %s", errStr, args[0].(string))
 	}
 	return errors.New(errStr)
 }
@@ -37,10 +33,9 @@ func (c *Config) parseYAMLIgnore(name string, value map[interface{}]interface{})
 	expectedStr := "expected null or sequence"
 	for k, v := range value {
 		if k == "ignore" {
-			switch v.(type) {
+			switch val := v.(type) {
 			case []interface{}:
-				w := v.([]interface{})
-				for _, str := range w {
+				for _, str := range val {
 					c.Workshop.Ignore = append(c.Workshop.Ignore, str.(string))
 				}
 				return nil
@@ -59,12 +54,9 @@ func (c *Config) parseYAMLIgnore(name string, value map[interface{}]interface{})
 }
 
 func (c *Config) parseYAMLWorkshop() error {
-	switch c.yaml.Workshop.(type) {
+	switch val := c.yaml.Workshop.(type) {
 	case map[interface{}]interface{}:
-		return c.parseYAMLIgnore(
-			"workshop.ignore",
-			c.yaml.Workshop.(map[interface{}]interface{}),
-		)
+		return c.parseYAMLIgnore("workshop.ignore", val)
 	case nil:
 		return nil
 	default:
@@ -91,15 +83,15 @@ func (c *Config) Load(file *os.File) error {
 	return nil
 }
 
-type YAML struct {
+type ConfigYAML struct {
 	Workshop interface{} `yaml:"workshop"`
 }
 
-func NewYAML() *YAML {
-	return &YAML{}
+func NewYAML() *ConfigYAML {
+	return &ConfigYAML{}
 }
 
-func (y *YAML) UnmarshalFile(file *os.File) error {
+func (c *ConfigYAML) UnmarshalFile(file *os.File) error {
 	stat, err := file.Stat()
 	if err != nil {
 		return err
@@ -111,9 +103,9 @@ func (y *YAML) UnmarshalFile(file *os.File) error {
 		return err
 	}
 
-	return yaml.Unmarshal(in, &y)
+	return yaml.Unmarshal(in, &c)
 }
 
-type Workshop struct {
+type ConfigYWorkshop struct {
 	Ignore []string
 }

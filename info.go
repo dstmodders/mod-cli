@@ -1,4 +1,4 @@
-package mod_cli
+package main
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 )
 
 type Info struct {
-	Compatability         bool
+	Compatibility         bool
 	Configuration         bool
 	ConfigurationMarkdown bool
 	Description           bool
@@ -23,7 +23,7 @@ type Info struct {
 
 func NewInfo(modinfo *modinfo.ModInfo) *Info {
 	return &Info{
-		Compatability: true,
+		Compatibility: true,
 		Configuration: true,
 		Description:   true,
 		General:       true,
@@ -45,8 +45,8 @@ func (i *Info) PrintConfigurationOption(option modinfo.Option) {
 	if option.Hover != "" {
 		n := option.Label
 		if i.Names {
-			if (!i.General && !i.Description && !i.Compatability && !i.Configuration && !i.Other) ||
-				(i.General || i.Description || i.Compatability || i.Other) {
+			if (!i.General && !i.Description && !i.Compatibility && !i.Configuration && !i.Other) ||
+				(i.General || i.Description || i.Compatibility || i.Other) {
 				n = "configuration_options." + option.Name
 			} else {
 				n = option.Name
@@ -69,7 +69,7 @@ func (i *Info) PrintDescription() {
 	fmt.Println(i.modinfo.FieldByName("description"))
 }
 
-func (i *Info) PrintCompatability() {
+func (i *Info) PrintCompatibility() {
 	i.PrintGlobal("dont_starve_compatible")
 	i.PrintGlobal("dst_compatible")
 	i.PrintGlobal("reign_of_giants_compatible")
@@ -128,7 +128,7 @@ func (i *Info) PrintOther() {
 	i.PrintGlobal("folder_name")
 }
 
-func (i *Info) Print() error {
+func (i *Info) Print() error { //nolint:funlen,gocyclo
 	if i.ConfigurationMarkdown {
 		if err := i.PrintConfigurationMarkdown(); err != nil {
 			return err
@@ -137,14 +137,14 @@ func (i *Info) Print() error {
 	}
 
 	if i.General {
-		if i.Description || i.Compatability || i.Configuration || i.Other {
+		if i.Description || i.Compatibility || i.Configuration || i.Other {
 			fmt.Printf("[GENERAL]\n\n")
 		}
 		i.PrintGeneral()
 	}
 
 	if i.Description {
-		if i.General || i.Compatability || i.Configuration || i.Other {
+		if i.General || i.Compatibility || i.Configuration || i.Other {
 			if i.General {
 				fmt.Println()
 			}
@@ -153,19 +153,19 @@ func (i *Info) Print() error {
 		i.PrintDescription()
 	}
 
-	if i.Compatability {
+	if i.Compatibility {
 		if i.General || i.Description || i.Configuration || i.Other {
 			if i.General || i.Description {
 				fmt.Println()
 			}
-			fmt.Printf("[COMPATABILITY]\n\n")
+			fmt.Printf("[COMPATIBILITY]\n\n")
 		}
-		i.PrintCompatability()
+		i.PrintCompatibility()
 	}
 
 	if i.Configuration {
-		if i.General || i.Description || i.Compatability || i.Other {
-			if i.General || i.Description || i.Compatability {
+		if i.General || i.Description || i.Compatibility || i.Other {
+			if i.General || i.Description || i.Compatibility {
 				fmt.Println()
 			}
 			fmt.Printf("[CONFIGURATION]\n\n")
@@ -174,8 +174,8 @@ func (i *Info) Print() error {
 	}
 
 	if i.Other {
-		if i.General || i.Description || i.Compatability || i.Configuration {
-			if i.General || i.Description || i.Compatability || i.Configuration {
+		if i.General || i.Description || i.Compatibility || i.Configuration {
+			if i.General || i.Description || i.Compatibility || i.Configuration {
 				fmt.Println()
 			}
 			fmt.Printf("[OTHER]\n\n")
@@ -183,7 +183,7 @@ func (i *Info) Print() error {
 		i.PrintOther()
 	}
 
-	if i.General || i.Description || i.Compatability || i.Configuration || i.Other {
+	if i.General || i.Description || i.Compatibility || i.Configuration || i.Other {
 		return nil
 	}
 
@@ -195,8 +195,8 @@ func (i *Info) Print() error {
 	i.PrintDescription()
 	fmt.Println()
 
-	fmt.Printf("[COMPATABILITY]\n\n")
-	i.PrintCompatability()
+	fmt.Printf("[COMPATIBILITY]\n\n")
+	i.PrintCompatibility()
 	fmt.Println()
 
 	fmt.Printf("[CONFIGURATION]\n\n")

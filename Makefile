@@ -3,7 +3,7 @@ VERSION ?= $(shell git describe --tags --dirty --always | sed -e 's/^v//')
 
 .PHONY: build
 build:
-	go build -ldflags "-X main.version=$(VERSION)" -o dist/local/mod cmd/main.go
+	go build -ldflags "-X main.version=$(VERSION)" -o dist/local/mod
 
 .PHONY: install
 install: build

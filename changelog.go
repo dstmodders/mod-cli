@@ -1,4 +1,4 @@
-package mod_cli
+package main
 
 import (
 	"errors"

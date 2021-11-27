@@ -42,7 +42,7 @@ func (c *Changelog) LatestRelease() *Release {
 	return nil
 }
 
-func (c *Changelog) FromGoldmarkNode(source []byte, node ast.Node) error {
+func (c *Changelog) FromGoldmarkNode(source []byte, node ast.Node) error { //nolint:funlen,gocyclo
 	var release *Release
 	var changes []ReleaseChange
 	var changesType string

@@ -3,7 +3,7 @@ package modinfo
 import (
 	"fmt"
 
-	"github.com/yuin/gopher-lua"
+	lua "github.com/yuin/gopher-lua"
 )
 
 type Controller interface {
@@ -14,7 +14,7 @@ type Controller interface {
 type ModInfo struct {
 	General              map[string]*Field
 	Other                map[string]*Field
-	Compatability        map[string]*Field
+	Compatibility        map[string]*Field
 	ConfigurationOptions *ConfigurationOptions
 	lState               *lua.LState
 }
@@ -28,7 +28,7 @@ func New() *ModInfo {
 			"name":        NewField("name", "Title", true),
 			"version":     NewField("version", "Version", true),
 		},
-		Compatability: map[string]*Field{
+		Compatibility: map[string]*Field{
 			"dont_starve_compatible":     NewField("dont_starve_compatible", "Don't Starve Compatible", true),
 			"dst_compatible":             NewField("dst_compatible", "Don't Starve Together Compatible", true),
 			"reign_of_giants_compatible": NewField("reign_of_giants_compatible", "Reign Of Giants Compatible", true),
@@ -119,6 +119,7 @@ func (m *ModInfo) getConfigurationOptions() (*ConfigurationOptions, error) {
 	result := NewConfigurationOptions()
 
 	lvConfigurationOptions := m.lState.GetGlobal("configuration_options")
+	//nolint:nestif
 	if lvConfigurationOptionsTbl, ok := lvConfigurationOptions.(*lua.LTable); ok {
 		lvConfigurationOptionsTblLen := m.lState.ObjLen(lvConfigurationOptionsTbl)
 		for i := 1; i <= lvConfigurationOptionsTblLen; i++ {
@@ -282,8 +283,8 @@ func (m *ModInfo) FieldByName(name string) *Field {
 		return m.General[name]
 	}
 
-	if m.Compatability[name] != nil {
-		return m.Compatability[name]
+	if m.Compatibility[name] != nil {
+		return m.Compatibility[name]
 	}
 
 	if m.Other[name] != nil {

@@ -24,9 +24,10 @@ Mod info tools.
 
 Flags:
   -h, --help                    Show context-sensitive help (also try --help-long and --help-man).
+  -c, --config=".modcli"        Path to configurations file.
   -v, --version                 Show application version.
       --compatibility           Show compatibility fields.
-  -c, --configuration           Show configuration options with their default values.
+      --configuration           Show configuration options with their default values.
   -m, --configuration-markdown  Show configuration options with their default values as a Markdown table.
   -d, --description             Show description.
   -f, --first-line              Show first lines for values.
@@ -44,7 +45,7 @@ For these examples, we will use [Dev Tools][] mod meaning that all the commands
 below will be executed within its mod directory:
 
 ```shell
-$ cd your/path/to/mod-dev-tools/
+$ cd /your/path/to/mod-dev-tools/
 ```
 
 ### Default
@@ -113,7 +114,7 @@ Folder Title: mod-dev-tools
 #### Default
 
 ```shell
-$ mod info -c
+$ mod info --configuration
 ```
 
 ```txt

@@ -8,6 +8,7 @@ require (
 	github.com/yuin/goldmark v1.4.4
 	github.com/yuin/gopher-lua v0.0.0-20210529063254-f4c35e4016d9
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
+	gopkg.in/yaml.v2 v2.2.2
 )
 
 require (

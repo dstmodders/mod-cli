@@ -21,7 +21,7 @@ type Info struct {
 	modinfo               *modinfo.ModInfo
 }
 
-func NewInfo(modinfo *modinfo.ModInfo) *Info {
+func New(modinfo *modinfo.ModInfo) *Info {
 	return &Info{
 		Compatability: true,
 		Configuration: true,

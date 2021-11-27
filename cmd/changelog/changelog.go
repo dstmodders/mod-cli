@@ -24,7 +24,7 @@ type Changelog struct {
 	Source       []byte
 }
 
-func NewChangelog() *Changelog {
+func New() *Changelog {
 	return &Changelog{}
 }
 

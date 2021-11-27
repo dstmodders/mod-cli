@@ -1,0 +1,47 @@
+# minimum golangci-lint version required: v1.43.0
+run:
+  timeout: 3m
+
+linters-settings:
+  gocyclo:
+    min-complexity: 15
+  gocritic:
+    disabled-checks:
+      - ifElseChain
+
+linters:
+  enable:
+    - bodyclose
+    - depguard
+    - dogsled
+    - dupl
+    - exportloopref
+    - funlen
+    - goconst
+    - gocritic
+    - gocyclo
+    - godox
+    - gofmt
+    - goimports
+    - goprintffuncname
+    - gosec
+    - misspell
+    - nakedret
+    - nestif
+    - noctx
+    - nolintlint
+    - prealloc
+    - revive
+    - rowserrcheck
+    - stylecheck
+    - unconvert
+    - unparam
+    - whitespace
+    # don't enable:
+    # - exhaustive
+    # - gochecknoinits
+    # - godot
+    # - goerr113
+    # - gomnd
+    # - lll
+    # - wsl

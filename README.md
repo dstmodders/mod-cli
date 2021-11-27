@@ -19,7 +19,7 @@ tasks.
 2. Clone the repository: `git clone https://github.com/dstmodders/mod-cli.git`
 3. Build and install: `make install`
 
-You can also use `go run cmd/main.go` to run it directly during the development.
+You can also use `go run .` to run it directly during the development.
 
 ## License
 

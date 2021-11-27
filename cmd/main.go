@@ -12,9 +12,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const (
-	Version = "0.1"
-)
+var version string
 
 var (
 	// kingpin
@@ -144,7 +142,7 @@ func runInfo() error {
 
 func init() {
 	// kingpin
-	app.UsageTemplate(kingpin.DefaultUsageTemplate).Version(Version)
+	app.UsageTemplate(kingpin.DefaultUsageTemplate).Version(version)
 	app.HelpFlag.Short('h')
 	app.VersionFlag.Short('v')
 }

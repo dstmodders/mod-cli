@@ -10,3 +10,10 @@ install: build
 	@cp dist/local/mod $(PREFIX)/bin/mod
 	@chmod 755 $(PREFIX)/bin/mod
 	@mod --version
+
+.PHONY: lint-go
+lint-go:
+	golangci-lint run
+
+.PHONY: lint
+lint: lint-go

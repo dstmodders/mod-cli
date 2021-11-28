@@ -6,9 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	lua "github.com/yuin/gopher-lua"
-
-	"github.com/dstmodders/mod-cli/modinfo"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -82,15 +79,13 @@ func loadConfig() {
 			fatalError(errMsg, err)
 		}
 
-		if err := cfg.Load(f); err != nil {
+		if err := cfg.load(f); err != nil {
 			fatalError(errMsg, err)
 		}
 	}
 }
 
-func runChangelog() error {
-	path := *changelogCmdPath
-
+func runChangelog() {
 	c := NewChangelog()
 	c.Count = *changelogCmdCount
 	c.First = *changelogCmdFirst
@@ -98,32 +93,13 @@ func runChangelog() error {
 	c.List = *changelogCmdList
 	c.ListVersions = *changelogCmdListVersions
 
-	if err := c.Load(path); err != nil {
-		return err
+	if err := c.run(*changelogCmdPath); err != nil {
+		fatalError("failed to run changelog command", err)
 	}
-
-	if err := c.Print(); err != nil {
-		return err
-	}
-
-	return nil
 }
 
-func runInfo() error {
-	path := *infoCmdPath
-
-	L := lua.NewState()
-	defer L.Close()
-	if err := L.DoFile(path); err != nil {
-		return err
-	}
-
-	m := modinfo.New()
-	if err := m.Load(path); err != nil {
-		return err
-	}
-
-	i := NewInfo(m)
+func runInfo() {
+	i := NewInfo()
 	i.Compatibility = *infoCmdCompatibility
 	i.Configuration = *infoCmdConfiguration
 	i.ConfigurationMarkdown = *infoCmdConfigurationMarkdown
@@ -133,11 +109,9 @@ func runInfo() error {
 	i.Names = *infoCmdNames
 	i.Other = *infoCmdOther
 
-	if err := i.Print(); err != nil {
-		return err
+	if err := i.run(*infoCmdPath); err != nil {
+		fatalError("failed to run info command", err)
 	}
-
-	return nil
 }
 
 func init() {
@@ -158,12 +132,8 @@ func main() {
 	// commands
 	switch kingpin.MustParse(command, err) {
 	case changelogCmd.FullCommand():
-		if err := runChangelog(); err != nil {
-			fatalError("failed to run changelog command", err)
-		}
+		runChangelog()
 	case infoCmd.FullCommand():
-		if err := runInfo(); err != nil {
-			fatalError("failed to run info command", err)
-		}
+		runInfo()
 	}
 }

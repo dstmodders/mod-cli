@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	md "github.com/fbiville/markdown-table-formatter/pkg/markdown"
+	lua "github.com/yuin/gopher-lua"
 
 	"github.com/dstmodders/mod-cli/modinfo"
 )
@@ -21,18 +22,17 @@ type Info struct {
 	modinfo               *modinfo.ModInfo
 }
 
-func NewInfo(modinfo *modinfo.ModInfo) *Info {
+func NewInfo() *Info {
 	return &Info{
 		Compatibility: true,
 		Configuration: true,
 		Description:   true,
 		General:       true,
 		Other:         true,
-		modinfo:       modinfo,
 	}
 }
 
-func (i *Info) PrintGlobal(name string) {
+func (i *Info) printGlobal(name string) {
 	g := i.modinfo.FieldByName(name)
 	n := g.Description
 	if i.Names {
@@ -41,7 +41,24 @@ func (i *Info) PrintGlobal(name string) {
 	fmt.Printf("%s: %s\n", n, g.String())
 }
 
-func (i *Info) PrintConfigurationOption(option modinfo.Option) {
+func (i *Info) printGeneral() {
+	i.printGlobal("name")
+	i.printGlobal("author")
+	i.printGlobal("version")
+	i.printGlobal("api_version")
+}
+
+func (i *Info) printDescription() {
+	fmt.Println(i.modinfo.FieldByName("description"))
+}
+
+func (i *Info) printCompatibility() {
+	i.printGlobal("dont_starve_compatible")
+	i.printGlobal("dst_compatible")
+	i.printGlobal("reign_of_giants_compatible")
+}
+
+func (i *Info) printConfigurationOption(option modinfo.Option) {
 	if option.Hover != "" {
 		n := option.Label
 		if i.Names {
@@ -58,30 +75,13 @@ func (i *Info) PrintConfigurationOption(option modinfo.Option) {
 	}
 }
 
-func (i *Info) PrintGeneral() {
-	i.PrintGlobal("name")
-	i.PrintGlobal("author")
-	i.PrintGlobal("version")
-	i.PrintGlobal("api_version")
-}
-
-func (i *Info) PrintDescription() {
-	fmt.Println(i.modinfo.FieldByName("description"))
-}
-
-func (i *Info) PrintCompatibility() {
-	i.PrintGlobal("dont_starve_compatible")
-	i.PrintGlobal("dst_compatible")
-	i.PrintGlobal("reign_of_giants_compatible")
-}
-
-func (i *Info) PrintConfiguration() {
+func (i *Info) printConfiguration() {
 	for _, option := range i.modinfo.ConfigurationOptions.Values {
-		i.PrintConfigurationOption(option)
+		i.printConfigurationOption(option)
 	}
 }
 
-func (i *Info) PrintConfigurationMarkdown() error {
+func (i *Info) printConfigurationMarkdown() error {
 	var data [][]string
 
 	for _, option := range i.modinfo.ConfigurationOptions.Values {
@@ -120,17 +120,17 @@ func (i *Info) PrintConfigurationMarkdown() error {
 	return nil
 }
 
-func (i *Info) PrintOther() {
-	i.PrintGlobal("icon")
-	i.PrintGlobal("icon_atlas")
-	i.PrintGlobal("forum_thread")
-	i.PrintGlobal("priority")
-	i.PrintGlobal("folder_name")
+func (i *Info) printOther() {
+	i.printGlobal("icon")
+	i.printGlobal("icon_atlas")
+	i.printGlobal("forum_thread")
+	i.printGlobal("priority")
+	i.printGlobal("folder_name")
 }
 
-func (i *Info) Print() error { //nolint:funlen,gocyclo
+func (i *Info) print() error { //nolint:funlen,gocyclo
 	if i.ConfigurationMarkdown {
-		if err := i.PrintConfigurationMarkdown(); err != nil {
+		if err := i.printConfigurationMarkdown(); err != nil {
 			return err
 		}
 		return nil
@@ -138,9 +138,9 @@ func (i *Info) Print() error { //nolint:funlen,gocyclo
 
 	if i.General {
 		if i.Description || i.Compatibility || i.Configuration || i.Other {
-			fmt.Printf("[GENERAL]\n\n")
+			printTitle("General")
 		}
-		i.PrintGeneral()
+		i.printGeneral()
 	}
 
 	if i.Description {
@@ -148,9 +148,9 @@ func (i *Info) Print() error { //nolint:funlen,gocyclo
 			if i.General {
 				fmt.Println()
 			}
-			fmt.Printf("[DESCRIPTION]\n\n")
+			printTitle("Description")
 		}
-		i.PrintDescription()
+		i.printDescription()
 	}
 
 	if i.Compatibility {
@@ -158,9 +158,9 @@ func (i *Info) Print() error { //nolint:funlen,gocyclo
 			if i.General || i.Description {
 				fmt.Println()
 			}
-			fmt.Printf("[COMPATIBILITY]\n\n")
+			printTitle("Compatibility")
 		}
-		i.PrintCompatibility()
+		i.printCompatibility()
 	}
 
 	if i.Configuration {
@@ -168,9 +168,9 @@ func (i *Info) Print() error { //nolint:funlen,gocyclo
 			if i.General || i.Description || i.Compatibility {
 				fmt.Println()
 			}
-			fmt.Printf("[CONFIGURATION]\n\n")
+			printTitle("Configuration")
 		}
-		i.PrintConfiguration()
+		i.printConfiguration()
 	}
 
 	if i.Other {
@@ -178,33 +178,54 @@ func (i *Info) Print() error { //nolint:funlen,gocyclo
 			if i.General || i.Description || i.Compatibility || i.Configuration {
 				fmt.Println()
 			}
-			fmt.Printf("[OTHER]\n\n")
+			printTitle("Other")
 		}
-		i.PrintOther()
+		i.printOther()
 	}
 
 	if i.General || i.Description || i.Compatibility || i.Configuration || i.Other {
 		return nil
 	}
 
-	fmt.Printf("[GENERAL]\n\n")
-	i.PrintGeneral()
+	printTitle("General")
+	i.printGeneral()
 	fmt.Println()
 
-	fmt.Printf("[DESCRIPTION]\n\n")
-	i.PrintDescription()
+	printTitle("Description")
+	i.printDescription()
 	fmt.Println()
 
-	fmt.Printf("[COMPATIBILITY]\n\n")
-	i.PrintCompatibility()
+	printTitle("Compatibility")
+	i.printCompatibility()
 	fmt.Println()
 
-	fmt.Printf("[CONFIGURATION]\n\n")
-	i.PrintConfiguration()
+	printTitle("Configuration")
+	i.printConfiguration()
 	fmt.Println()
 
-	fmt.Printf("[OTHER]\n\n")
-	i.PrintOther()
+	printTitle("Other")
+	i.printOther()
+
+	return nil
+}
+
+func (i *Info) run(path string) error {
+	L := lua.NewState()
+	defer L.Close()
+	if err := L.DoFile(path); err != nil {
+		return err
+	}
+
+	m := modinfo.New()
+	if err := m.Load(path); err != nil {
+		return err
+	}
+
+	i.modinfo = m
+
+	if err := i.print(); err != nil {
+		return err
+	}
 
 	return nil
 }

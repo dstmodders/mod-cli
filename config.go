@@ -67,9 +67,9 @@ func (c *Config) parseYAMLWorkshop() error {
 	}
 }
 
-func (c *Config) Load(file *os.File) error {
+func (c *Config) load(file *os.File) error {
 	yml := NewYAML()
-	if err := yml.UnmarshalFile(file); err != nil {
+	if err := yml.unmarshalFile(file); err != nil {
 		return errors.New("not YAML format")
 	}
 
@@ -91,7 +91,7 @@ func NewYAML() *ConfigYAML {
 	return &ConfigYAML{}
 }
 
-func (c *ConfigYAML) UnmarshalFile(file *os.File) error {
+func (c *ConfigYAML) unmarshalFile(file *os.File) error {
 	stat, err := file.Stat()
 	if err != nil {
 		return err

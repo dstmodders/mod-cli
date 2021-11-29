@@ -30,6 +30,8 @@ var (
 	changelogCmdList         = changelogCmd.Flag("list", "Show list of releases without changes.").Bool()
 	changelogCmdListVersions = changelogCmd.Flag("list-versions", "Show list of versions.").Bool()
 
+	doctorCmd = app.Command("doctor", "Check health of this CLI app.")
+
 	infoCmd                      = app.Command("info", "Mod info tools.")
 	infoCmdPath                  = infoCmd.Arg("path", "Path to modinfo.lua.").Default("modinfo.lua").String()
 	infoCmdCompatibility         = infoCmd.Flag("compatibility", "Show compatibility fields.").Bool()
@@ -98,6 +100,14 @@ func runChangelog() {
 	}
 }
 
+func runDoctor() {
+	d := NewDoctor(cfg)
+
+	if err := d.run(); err != nil {
+		fatalError("failed to run doctor command", err)
+	}
+}
+
 func runInfo() {
 	i := NewInfo()
 	i.Compatibility = *infoCmdCompatibility
@@ -133,6 +143,8 @@ func main() {
 	switch kingpin.MustParse(command, err) {
 	case changelogCmd.FullCommand():
 		runChangelog()
+	case doctorCmd.FullCommand():
+		runDoctor()
 	case infoCmd.FullCommand():
 		runInfo()
 	}

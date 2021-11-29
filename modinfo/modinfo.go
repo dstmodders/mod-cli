@@ -1,3 +1,5 @@
+// Package modinfo has been designed to interpretate modinfo.lua and give access
+// to the supported values.
 package modinfo
 
 import (
@@ -6,19 +8,31 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
+// Controller is the interface that wraps the ModInfo methods.
 type Controller interface {
-	FieldByName(name string) *Field
-	Load(path string) error
+	FieldByName(string) *Field
+	Load(string) error
 }
 
+// ModInfo represents modinfo.lua data.
 type ModInfo struct {
-	General              map[string]*Field
-	Other                map[string]*Field
-	Compatibility        map[string]*Field
+	// General holds a map of all general fields. It includes all the required
+	// ones except compatibility ones.
+	General map[string]*Field
+
+	// Compatibility holds a map of all required compatibility fields.
+	Compatibility map[string]*Field
+
+	// ConfigurationOptions holds "configuration_options".
 	ConfigurationOptions *ConfigurationOptions
-	lState               *lua.LState
+
+	// Other holds all other fields that are not required.
+	Other map[string]*Field
+
+	lState *lua.LState
 }
 
+// New creates a new ModInfo instance.
 func New() *ModInfo {
 	return &ModInfo{
 		General: map[string]*Field{
@@ -278,6 +292,24 @@ func (m *ModInfo) setValues() error {
 	return nil
 }
 
+// Load loads modinfo.lua files from the provided path and sets all the
+// supported values.
+func (m *ModInfo) Load(path string) error {
+	m.lState = lua.NewState()
+	defer m.lState.Close()
+
+	if err := m.lState.DoFile(path); err != nil {
+		return err
+	}
+
+	if err := m.setValues(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// FieldByName returns a single Field based on its original global name.
 func (m *ModInfo) FieldByName(name string) *Field {
 	if m.General[name] != nil {
 		return m.General[name]
@@ -289,21 +321,6 @@ func (m *ModInfo) FieldByName(name string) *Field {
 
 	if m.Other[name] != nil {
 		return m.Other[name]
-	}
-
-	return nil
-}
-
-func (m *ModInfo) Load(path string) error {
-	m.lState = lua.NewState()
-	defer m.lState.Close()
-
-	if err := m.lState.DoFile(path); err != nil {
-		return err
-	}
-
-	if err := m.setValues(); err != nil {
-		return err
 	}
 
 	return nil

@@ -2,6 +2,7 @@ package modinfo
 
 import "strconv"
 
+// InterfaceToString returns a string representation of the provided interface.
 func InterfaceToString(value interface{}) string {
 	switch val := value.(type) {
 	case bool:

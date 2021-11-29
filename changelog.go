@@ -3,14 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/dstmodders/mod-cli/changelog"
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/extension"
-	"github.com/yuin/goldmark/text"
 )
 
 type Changelog struct {
@@ -20,34 +15,10 @@ type Changelog struct {
 	Latest       bool
 	List         bool
 	ListVersions bool
-	Node         ast.Node
-	Source       []byte
 }
 
 func NewChangelog() *Changelog {
 	return &Changelog{}
-}
-
-func (c *Changelog) load(path string) error {
-	src, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-
-	c.Source = src
-
-	md := goldmark.New(goldmark.WithExtensions(extension.GFM))
-	r := text.NewReader(src)
-	node := md.Parser().Parse(r)
-
-	c.Changelog = changelog.New()
-	c.Node = node
-
-	if err := c.Changelog.FromGoldmarkNode(src, node); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (c *Changelog) printTitle(release changelog.Release, brackets bool) {
@@ -184,7 +155,9 @@ func (c *Changelog) print() error {
 }
 
 func (c *Changelog) run(path string) error {
-	if err := c.load(path); err != nil {
+	c.Changelog = changelog.New()
+
+	if err := c.Changelog.Load(path); err != nil {
 		return err
 	}
 

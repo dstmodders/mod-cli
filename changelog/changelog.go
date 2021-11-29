@@ -7,21 +7,30 @@
 // https://keepachangelog.com/en/1.0.0/
 package changelog
 
-import "github.com/yuin/goldmark/ast"
+import (
+	"os"
+
+	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/ast"
+	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/text"
+)
 
 // Controller is the interface that wraps the Changelog methods.
 type Controller interface {
+	Load(string) error
 	AddRelease(Release)
 	HasReleases() bool
 	FirstRelease() *Release
 	LatestRelease() *Release
-	FromGoldmarkNode([]byte, ast.Node) error
 }
 
 // Changelog represents the changelog itself.
 type Changelog struct {
 	// Releases holds a list of all releases.
 	Releases []Release
+
+	src []byte
 }
 
 // New creates a new Changelog instance.
@@ -29,37 +38,7 @@ func New() *Changelog {
 	return &Changelog{}
 }
 
-// AddRelease adds a new release.
-func (c *Changelog) AddRelease(r Release) {
-	c.Releases = append(c.Releases, r)
-}
-
-// HasReleases checks if there are any releases.
-func (c *Changelog) HasReleases() bool {
-	return len(c.Releases) > 0
-}
-
-// FirstRelease returns the first Release which usually points to the "Initial
-// release".
-func (c *Changelog) FirstRelease() *Release {
-	l := len(c.Releases)
-	if l > 0 {
-		return &c.Releases[l-1]
-	}
-	return nil
-}
-
-// LatestRelease returns the latest Release which usually points to the
-// "Unreleased" one.
-func (c *Changelog) LatestRelease() *Release {
-	l := len(c.Releases)
-	if l > 0 {
-		return &c.Releases[0]
-	}
-	return nil
-}
-
-func (c *Changelog) FromGoldmarkNode(source []byte, node ast.Node) error { //nolint:funlen,gocyclo
+func (c *Changelog) fromGoldmarkNode(src []byte, node ast.Node) error { //nolint:funlen,gocyclo
 	var release *Release
 	var changes []ReleaseChange
 	var changesType string
@@ -79,7 +58,7 @@ func (c *Changelog) FromGoldmarkNode(source []byte, node ast.Node) error { //nol
 				}
 
 				release = NewRelease()
-				if err := release.fromGoldmarkHeadingNode(source, block); err != nil {
+				if err := release.fromGoldmarkHeadingNode(src, block); err != nil {
 					return ast.WalkContinue, nil
 				}
 			case 3:
@@ -87,7 +66,7 @@ func (c *Changelog) FromGoldmarkNode(source []byte, node ast.Node) error { //nol
 					return ast.WalkContinue, nil
 				}
 
-				blockStr := block.Text(source)
+				blockStr := block.Text(src)
 				changesType = string(blockStr)
 			}
 		case ast.KindLink:
@@ -126,7 +105,7 @@ func (c *Changelog) FromGoldmarkNode(source []byte, node ast.Node) error { //nol
 			}
 
 			block := n.(*ast.ListItem)
-			changes = append(changes, *NewReleaseChange(string(block.Text(source))))
+			changes = append(changes, *NewReleaseChange(string(block.Text(src))))
 		case ast.KindParagraph:
 			if !entering {
 				return ast.WalkContinue, nil
@@ -138,7 +117,7 @@ func (c *Changelog) FromGoldmarkNode(source []byte, node ast.Node) error { //nol
 			if release != nil && ps.Kind() == ast.KindHeading {
 				psBlock := ps.(*ast.Heading)
 				if psBlock.Level == 2 {
-					release.Text = string(block.Text(source))
+					release.Text = string(block.Text(src))
 					c.AddRelease(*release)
 				}
 			}
@@ -148,4 +127,58 @@ func (c *Changelog) FromGoldmarkNode(source []byte, node ast.Node) error { //nol
 	})
 
 	return err
+}
+
+// Load loads and parses CHANGELOG.md from the provided path.
+func (c *Changelog) Load(path string) error {
+	src, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	c.src = src
+
+	md := goldmark.New(goldmark.WithExtensions(extension.GFM))
+	r := text.NewReader(src)
+	node := md.Parser().Parse(r)
+	if err := c.fromGoldmarkNode(src, node); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Src returns the original source loaded earlier by Load.
+func (c *Changelog) Src() []byte {
+	return c.src
+}
+
+// AddRelease adds a new release.
+func (c *Changelog) AddRelease(r Release) {
+	c.Releases = append(c.Releases, r)
+}
+
+// HasReleases checks if there are any releases.
+func (c *Changelog) HasReleases() bool {
+	return len(c.Releases) > 0
+}
+
+// FirstRelease returns the first Release which usually points to the "Initial
+// release".
+func (c *Changelog) FirstRelease() *Release {
+	l := len(c.Releases)
+	if l > 0 {
+		return &c.Releases[l-1]
+	}
+	return nil
+}
+
+// LatestRelease returns the latest Release which usually points to the
+// "Unreleased" one.
+func (c *Changelog) LatestRelease() *Release {
+	l := len(c.Releases)
+	if l > 0 {
+		return &c.Releases[0]
+	}
+	return nil
 }

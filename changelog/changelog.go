@@ -1,31 +1,46 @@
+// Package changelog has been designed to parse CHANGELOG.md and give access to
+// the information about existing releases. However, in the future, it may
+// support manipulating and generating changelogs as well if that kind of
+// behaviour will be needed in our CLI tools.
+//
+// It's based on the "Keep a Changelog" v1.0.0 specification:
+// https://keepachangelog.com/en/1.0.0/
 package changelog
 
 import "github.com/yuin/goldmark/ast"
 
+// Controller is the interface that wraps the Changelog methods.
 type Controller interface {
-	AddRelease(r Release)
+	AddRelease(Release)
 	HasReleases() bool
 	FirstRelease() *Release
 	LatestRelease() *Release
-	FromGoldmarkNode(source []byte, node ast.Node) error
+	FromGoldmarkNode([]byte, ast.Node) error
 }
 
+// Changelog represents the changelog itself.
 type Changelog struct {
+	// Releases holds a list of all releases.
 	Releases []Release
 }
 
+// New creates a new Changelog instance.
 func New() *Changelog {
 	return &Changelog{}
 }
 
+// AddRelease adds a new release.
 func (c *Changelog) AddRelease(r Release) {
 	c.Releases = append(c.Releases, r)
 }
 
+// HasReleases checks if there are any releases.
 func (c *Changelog) HasReleases() bool {
 	return len(c.Releases) > 0
 }
 
+// FirstRelease returns the first Release which usually points to the "Initial
+// release".
 func (c *Changelog) FirstRelease() *Release {
 	l := len(c.Releases)
 	if l > 0 {
@@ -34,6 +49,8 @@ func (c *Changelog) FirstRelease() *Release {
 	return nil
 }
 
+// LatestRelease returns the latest Release which usually points to the
+// "Unreleased" one.
 func (c *Changelog) LatestRelease() *Release {
 	l := len(c.Releases)
 	if l > 0 {
@@ -62,7 +79,7 @@ func (c *Changelog) FromGoldmarkNode(source []byte, node ast.Node) error { //nol
 				}
 
 				release = NewRelease()
-				if err := release.FromGoldmarkHeadingNode(source, block); err != nil {
+				if err := release.fromGoldmarkHeadingNode(source, block); err != nil {
 					return ast.WalkContinue, nil
 				}
 			case 3:

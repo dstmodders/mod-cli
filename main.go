@@ -42,6 +42,10 @@ var (
 	infoCmdGeneral               = infoCmd.Flag("general", "Show general fields.").Short('g').Bool()
 	infoCmdNames                 = infoCmd.Flag("names", "Show variable names or options data instead of their descriptions.").Short('n').Bool()
 	infoCmdOther                 = infoCmd.Flag("other", "Show other fields.").Short('o').Bool()
+
+	workshopCmd     = app.Command("workshop", "Steam Workshop tools.")
+	workshopCmdPath = workshopCmd.Arg("path", "Path to mod directory.").Default(".").ExistingDir()
+	workshopCmdName = workshopCmd.Flag("name", "Name of the destination directory/archive.").Default("workshop").Short('n').String()
 )
 
 func fatalError(msg string, args ...interface{}) {
@@ -124,6 +128,16 @@ func runInfo() {
 	}
 }
 
+func runWorkshop() {
+	w := NewWorkshop(cfg)
+	w.destName = *workshopCmdName
+	w.path = *workshopCmdPath
+
+	if err := w.run(); err != nil {
+		fatalError("failed to run workshop command", err)
+	}
+}
+
 func init() {
 	// kingpin
 	app.UsageTemplate(kingpin.DefaultUsageTemplate).Version(version)
@@ -147,5 +161,7 @@ func main() {
 		runDoctor()
 	case infoCmd.FullCommand():
 		runInfo()
+	case workshopCmd.FullCommand():
+		runWorkshop()
 	}
 }

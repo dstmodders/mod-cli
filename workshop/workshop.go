@@ -1,6 +1,7 @@
 package workshop
 
 import (
+	"archive/zip"
 	"errors"
 	"fmt"
 	"io"
@@ -19,6 +20,7 @@ type Controller interface {
 	MakeDestDir() error
 	MakeDestFile(string) error
 	CopyFiles() error
+	ZipFiles() error
 	CountDestItems() (int, error)
 	Files() []string
 	FilesSize() int64
@@ -186,6 +188,57 @@ func (w *Workshop) CopyFiles() error {
 		_ = dest.Close()
 	}
 
+	return nil
+}
+
+// ZipFiles create an archive of all files retrieved earlier using GetFiles.
+func (w *Workshop) ZipFiles() error {
+	if len(w.files) == 0 {
+		return errors.New("no files to zip")
+	}
+
+	archive, err := os.Create(w.relDestPath + ".zip")
+	if err != nil {
+		return err
+	}
+
+	zipWriter := zip.NewWriter(archive)
+	defer func(archive *os.File, zipWriter *zip.Writer) {
+		_ = archive.Close()
+		_ = zipWriter.Close()
+	}(archive, zipWriter)
+
+	for _, file := range w.files {
+		stat, err := os.Stat(file)
+		if err != nil {
+			return err
+		}
+
+		if !stat.Mode().IsRegular() {
+			return fmt.Errorf("%s is not a regular file", stat.Name())
+		}
+
+		src, err := os.Open(file)
+		if err != nil {
+			_ = src.Close()
+			return err
+		}
+
+		w, err := zipWriter.Create(file)
+		if err != nil {
+			_ = src.Close()
+			return err
+		}
+
+		if _, err := io.Copy(w, src); err != nil {
+			_ = src.Close()
+			return err
+		}
+
+		_ = src.Close()
+	}
+
+	_ = zipWriter.Close()
 	return nil
 }
 

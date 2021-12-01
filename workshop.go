@@ -14,6 +14,7 @@ type Workshop struct {
 	mod      *Mod
 	path     string
 	workshop *workshop.Workshop
+	zip      bool
 }
 
 func NewWorkshop(cfg *Config) *Workshop {
@@ -71,12 +72,17 @@ func (w *Workshop) copy() error {
 		}
 	}
 
-	if err := w.workshop.CopyFiles(); err != nil {
-		return err
+	if w.zip {
+		if err := w.workshop.ZipFiles(); err != nil {
+			return err
+		}
+	} else {
+		if err := w.workshop.CopyFiles(); err != nil {
+			return err
+		}
 	}
 
 	fmt.Println("Done")
-
 	return nil
 }
 

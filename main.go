@@ -45,7 +45,8 @@ var (
 
 	workshopCmd     = app.Command("workshop", "Steam Workshop tools.")
 	workshopCmdPath = workshopCmd.Arg("path", "Path to mod directory.").Default(".").ExistingDir()
-	workshopCmdName = workshopCmd.Flag("name", "Name of the destination directory/archive.").Default("workshop").Short('n').String()
+	workshopCmdName = workshopCmd.Flag("name", "Name of destination directory/archive.").Default("workshop").Short('n').String()
+	workshopCmdZip  = workshopCmd.Flag("zip", "Create a ZIP archive instead.").Short('z').Bool()
 )
 
 func fatalError(msg string, args ...interface{}) {
@@ -132,6 +133,7 @@ func runWorkshop() {
 	w := NewWorkshop(cfg)
 	w.destName = *workshopCmdName
 	w.path = *workshopCmdPath
+	w.zip = *workshopCmdZip
 
 	if err := w.run(); err != nil {
 		fatalError("failed to run workshop command", err)

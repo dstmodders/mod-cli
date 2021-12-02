@@ -1,3 +1,7 @@
+// Package workshop has been designed to prepare a mod directory or archive for
+// Steam Workshop. It allows including only the essential files based on ignore
+// paths. In the future, it may also include the features to automatically
+// publish your mod.
 package workshop
 
 import (

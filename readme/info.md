@@ -12,8 +12,8 @@ It also includes some other helpful features.
 - [Examples](#examples)
 
   - [Default](#default)
-  - [Configuration](#configuration)
-  - [Configuration (Markdown)](#configuration-markdown)
+  - [Configuration](#configuration-options)
+  - [Configuration (Markdown)](#configuration-options-markdown)
 
 ## Usage
 
@@ -46,12 +46,12 @@ For these examples, we will use [Dev Tools][] mod meaning that all the commands
 below will be executed within its mod directory:
 
 ```shell
-cd /your/path/to/mod-dev-tools/
+cd your/path/to/mod-dev-tools/
 ```
 
 - [Default](#default)
-- [Configuration](#configuration)
-- [Configuration (Markdown)](#configuration-markdown)
+- [Configuration](#configuration-options)
+- [Configuration (Markdown)](#configuration-options-markdown)
 
 ### Default
 
@@ -111,7 +111,7 @@ Priority: 1.0222050664
 Folder Title: mod-dev-tools
 ```
 
-### Configuration
+### Configuration options
 
 ```txt
 $ mod info --configuration
@@ -140,10 +140,10 @@ Disable mod warning: Enabled
 Debug: Disabled
 ```
 
-### Configuration (Markdown)
+### Configuration options (Markdown)
 
 ```txt
-$ mod info -m
+$ mod info -fm
 | Configuration                     | Default          | Description                                                             |
 | --------------------------------- | ---------------- | ----------------------------------------------------------------------- |
 | **Toggle tools key**              | _Right Bracket_  | Key used for toggling the tools                                         |

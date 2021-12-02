@@ -20,7 +20,7 @@ Changelog tools.
 
 Flags:
   -h, --help              Show context-sensitive help (also try --help-long and --help-man).
-  -c, --config=".modcli"  Path to configurations file.
+  -c, --config=".modcli"  Path to configuration file.
   -v, --version           Show application version.
       --count             Show total number of releases.
   -f, --first             Show first release.

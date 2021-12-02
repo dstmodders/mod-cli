@@ -20,7 +20,7 @@ var (
 
 	cfg = NewConfig()
 
-	appConfig = app.Flag("config", "Path to configurations file.").Short('c').Default(".modcli").String()
+	appConfig = app.Flag("config", "Path to configuration file.").Short('c').Default(".modcli").String()
 
 	changelogCmd             = app.Command("changelog", "Changelog tools.")
 	changelogCmdPath         = changelogCmd.Arg("path", "Path.").Default("CHANGELOG.md").String()

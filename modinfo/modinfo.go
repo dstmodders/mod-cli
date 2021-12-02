@@ -182,13 +182,17 @@ func (m *ModInfo) getConfigurationOptions() (*ConfigurationOptions, error) {
 }
 
 func (m *ModInfo) setBoolValues() error {
-	globals := []*Field{
-		m.FieldByName("all_clients_require_mod"),
-		m.FieldByName("client_only_mod"),
-		m.FieldByName("dont_starve_compatible"),
-		m.FieldByName("dst_compatible"),
-		m.FieldByName("reign_of_giants_compatible"),
-		m.FieldByName("shipwrecked_compatible"),
+	globals, err := m.FieldsByName([]string{
+		"all_clients_require_mod",
+		"client_only_mod",
+		"dont_starve_compatible",
+		"dst_compatible",
+		"reign_of_giants_compatible",
+		"shipwrecked_compatible",
+	})
+
+	if err != nil {
+		return err
 	}
 
 	for _, global := range globals {
@@ -205,8 +209,9 @@ func (m *ModInfo) setBoolValues() error {
 }
 
 func (m *ModInfo) setFloat64Values() error {
-	globals := []*Field{
-		m.FieldByName("priority"),
+	globals, err := m.FieldsByName([]string{"priority"})
+	if err != nil {
+		return err
 	}
 
 	for _, global := range globals {
@@ -223,8 +228,9 @@ func (m *ModInfo) setFloat64Values() error {
 }
 
 func (m *ModInfo) setIntValues() error {
-	globals := []*Field{
-		m.FieldByName("api_version"),
+	globals, err := m.FieldsByName([]string{"api_version"})
+	if err != nil {
+		return err
 	}
 
 	for _, global := range globals {
@@ -241,15 +247,19 @@ func (m *ModInfo) setIntValues() error {
 }
 
 func (m *ModInfo) setStringValues() error {
-	globals := []*Field{
-		m.FieldByName("description"),
-		m.FieldByName("folder_name"),
-		m.FieldByName("forum_thread"),
-		m.FieldByName("icon"),
-		m.FieldByName("icon_atlas"),
-		m.FieldByName("name"),
-		m.FieldByName("version"),
-		m.FieldByName("author"),
+	globals, err := m.FieldsByName([]string{
+		"description",
+		"folder_name",
+		"forum_thread",
+		"icon",
+		"icon_atlas",
+		"name",
+		"version",
+		"author",
+	})
+
+	if err != nil {
+		return err
 	}
 
 	for _, global := range globals {
@@ -310,18 +320,34 @@ func (m *ModInfo) Load(path string) error {
 }
 
 // FieldByName returns a single Field based on its original global name.
-func (m *ModInfo) FieldByName(name string) *Field {
-	if m.General[name] != nil {
-		return m.General[name]
+func (m *ModInfo) FieldByName(name string) (*Field, error) {
+	if val, ok := m.General[name]; ok {
+		return val, nil
 	}
 
-	if m.Compatibility[name] != nil {
-		return m.Compatibility[name]
+	if val, ok := m.Compatibility[name]; ok {
+		return val, nil
 	}
 
-	if m.Other[name] != nil {
-		return m.Other[name]
+	if val, ok := m.Other[name]; ok {
+		return val, nil
 	}
 
-	return nil
+	return nil, fmt.Errorf(
+		"field %s is not supported",
+		name,
+	)
+}
+
+// FieldsByName returns multiple Field structs based on the provided global
+// names.
+func (m *ModInfo) FieldsByName(names []string) (result []*Field, err error) {
+	for _, name := range names {
+		val, err := m.FieldByName(name)
+		if err != nil {
+			return result, err
+		}
+		result = append(result, val)
+	}
+	return result, nil
 }

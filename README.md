@@ -9,13 +9,14 @@ tasks.
 
 ## Commands
 
+- [changelog](./readme/changelog.md)
 - [info](./readme/info.md)
 
 ## Contributing
 
 ### Manually building from source
 
-1. Install Go tools (1.17+): https://go.dev/doc/install
+1. Install Go tools (1.17+): [https://go.dev/doc/install](https://go.dev/doc/install)
 2. Clone the repository: `git clone https://github.com/dstmodders/mod-cli.git`
 3. Build and install: `make install`
 

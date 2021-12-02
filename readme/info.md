@@ -11,13 +11,14 @@ It also includes some other helpful features.
 - [Usage](#usage)
 - [Examples](#examples)
 
+  - [Default](#default)
+  - [Configuration](#configuration)
+  - [Configuration (Markdown)](#configuration-markdown)
+
 ## Usage
 
-```shell
-$ mod info -h
-```
-
 ```txt
+$ mod info -h
 usage: mod info [<flags>] [<path>]
 
 Mod info tools.
@@ -45,16 +46,17 @@ For these examples, we will use [Dev Tools][] mod meaning that all the commands
 below will be executed within its mod directory:
 
 ```shell
-$ cd /your/path/to/mod-dev-tools/
+cd /your/path/to/mod-dev-tools/
 ```
+
+- [Default](#default)
+- [Configuration](#configuration)
+- [Configuration (Markdown)](#configuration-markdown)
 
 ### Default
 
-```shell
-$ mod info
-```
-
 ```txt
+$ mod info
 [GENERAL]
 
 Title: Dev Tools (dev)
@@ -111,13 +113,8 @@ Folder Title: mod-dev-tools
 
 ### Configuration
 
-#### Default
-
-```shell
-$ mod info --configuration
-```
-
 ```txt
+$ mod info --configuration
 Toggle tools key: Right Bracket
 Switch data key: X
 Select key: Tab
@@ -143,13 +140,10 @@ Disable mod warning: Enabled
 Debug: Disabled
 ```
 
-#### Default
-
-```shell
-$ mod info -m
-```
+### Configuration (Markdown)
 
 ```txt
+$ mod info -m
 | Configuration                     | Default          | Description                                                             |
 | --------------------------------- | ---------------- | ----------------------------------------------------------------------- |
 | **Toggle tools key**              | _Right Bracket_  | Key used for toggling the tools                                         |

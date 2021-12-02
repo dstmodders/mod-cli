@@ -11,6 +11,7 @@ import (
 type Workshop struct {
 	cfg      *Config
 	destName string
+	list     bool
 	mod      *Mod
 	path     string
 	workshop *workshop.Workshop
@@ -37,9 +38,7 @@ func (w *Workshop) printPaths() {
 
 func (w *Workshop) printFiles() {
 	printTitle(fmt.Sprintf("Files | Total: %d", len(w.workshop.Files())))
-	for _, file := range w.workshop.Files() {
-		fmt.Println(file)
-	}
+	w.workshop.PrintFiles()
 }
 
 func (w *Workshop) printDefault() error {
@@ -105,6 +104,11 @@ func (w *Workshop) run() error {
 
 	if _, _, err := ws.GetFiles(); err != nil {
 		return err
+	}
+
+	if w.list {
+		w.workshop.PrintFiles()
+		return nil
 	}
 
 	if err := w.printDefault(); err != nil {

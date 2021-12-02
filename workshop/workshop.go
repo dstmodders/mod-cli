@@ -32,6 +32,7 @@ type Controller interface {
 	AbsSrcPath() string
 	RelDestPath() string
 	AbsDestPath() string
+	PrintFiles()
 }
 
 // Workshop represents the workshop-related data.
@@ -289,4 +290,11 @@ func (w *Workshop) RelDestPath() string {
 // AbsDestPath gets an absolute destination path.
 func (w *Workshop) AbsDestPath() string {
 	return w.absDestPath
+}
+
+// PrintFiles prints a list of files retrieved earlier using GetFiles.
+func (w *Workshop) PrintFiles() {
+	for _, file := range w.files {
+		fmt.Println(file)
+	}
 }

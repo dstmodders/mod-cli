@@ -45,6 +45,7 @@ var (
 
 	workshopCmd     = app.Command("workshop", "Steam Workshop tools.")
 	workshopCmdPath = workshopCmd.Arg("path", "Path to mod directory.").Default(".").ExistingDir()
+	workshopCmdList = workshopCmd.Flag("list", "Show only files that are going to be included.").Short('l').Bool()
 	workshopCmdName = workshopCmd.Flag("name", "Name of destination directory/archive.").Default("workshop").Short('n').String()
 	workshopCmdZip  = workshopCmd.Flag("zip", "Create a ZIP archive instead.").Short('z').Bool()
 )
@@ -132,6 +133,7 @@ func runInfo() {
 func runWorkshop() {
 	w := NewWorkshop(cfg)
 	w.destName = *workshopCmdName
+	w.list = *workshopCmdList
 	w.path = *workshopCmdPath
 	w.zip = *workshopCmdZip
 

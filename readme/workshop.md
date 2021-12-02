@@ -36,6 +36,7 @@ Flags:
   -h, --help              Show context-sensitive help (also try --help-long and --help-man).
   -c, --config=".modcli"  Path to configuration file.
   -v, --version           Show application version.
+  -l, --list              Show only files that are going to be included.
   -n, --name="workshop"   Name of destination directory/archive.
   -z, --zip               Create a ZIP archive instead.
 

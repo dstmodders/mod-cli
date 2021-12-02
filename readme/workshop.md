@@ -49,19 +49,19 @@ Args:
 ```yml
 workshop:
   ignore:
-    - "*.md"
-    - "*.zip"
-    - ".*"
-    - "Makefile"
-    - "codecov.yml"
-    - "config.ld"
-    - "docs/"
-    - "lcov.info"
-    - "luacov.*"
-    - "modicon.png"
-    - "preview.png"
-    - "readme/"
-    - "spec/"
+    - '*.md'
+    - '*.zip'
+    - '.*'
+    - 'Makefile'
+    - 'codecov.yml'
+    - 'config.ld'
+    - 'docs/'
+    - 'lcov.info'
+    - 'luacov.*'
+    - 'modicon.png'
+    - 'preview.png'
+    - 'readme/'
+    - 'spec/'
 ```
 
 ## Examples

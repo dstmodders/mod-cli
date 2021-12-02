@@ -38,7 +38,8 @@ var (
 	infoCmdConfiguration         = infoCmd.Flag("configuration", "Show configuration options with their default values.").Bool()
 	infoCmdConfigurationMarkdown = infoCmd.Flag("configuration-markdown", "Show configuration options with their default values as a Markdown table.").Short('m').Bool()
 	infoCmdDescription           = infoCmd.Flag("description", "Show description.").Short('d').Bool()
-	infoCmdFirstLine             = infoCmd.Flag("first-line", "Show first lines for values.").Short('f').Bool()
+	infoCmdField                 = infoCmd.Flag("field", "Show specific field value. Supports multiple flags.").Short('f').Strings()
+	infoCmdFirstLine             = infoCmd.Flag("first-line", "Show first lines for values.").Bool()
 	infoCmdGeneral               = infoCmd.Flag("general", "Show general fields.").Short('g').Bool()
 	infoCmdNames                 = infoCmd.Flag("names", "Show variable names or options data instead of their descriptions.").Short('n').Bool()
 	infoCmdOther                 = infoCmd.Flag("other", "Show other fields.").Short('o').Bool()
@@ -120,6 +121,7 @@ func runInfo() {
 	i.Configuration = *infoCmdConfiguration
 	i.ConfigurationMarkdown = *infoCmdConfigurationMarkdown
 	i.Description = *infoCmdDescription
+	i.Fields = *infoCmdField
 	i.FirstLine = *infoCmdFirstLine
 	i.General = *infoCmdGeneral
 	i.Names = *infoCmdNames

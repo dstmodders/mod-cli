@@ -41,12 +41,20 @@ func (m *Mod) Load(modPath string) error {
 		return err
 	}
 
-	name := info.FieldByName("name")
+	name, err := info.FieldByName("name")
+	if err != nil {
+		return err
+	}
+
 	if name == nil {
 		return errors.New("mod info field name doesn't have any value")
 	}
 
-	v := info.FieldByName("version")
+	v, err := info.FieldByName("version")
+	if err != nil {
+		return err
+	}
+
 	if v == nil {
 		return errors.New("mod info field version doesn't have any value")
 	}

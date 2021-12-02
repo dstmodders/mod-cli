@@ -25,13 +25,14 @@ Mod info tools.
 
 Flags:
   -h, --help                    Show context-sensitive help (also try --help-long and --help-man).
-  -c, --config=".modcli"        Path to configurations file.
+  -c, --config=".modcli"        Path to configuration file.
   -v, --version                 Show application version.
       --compatibility           Show compatibility fields.
       --configuration           Show configuration options with their default values.
   -m, --configuration-markdown  Show configuration options with their default values as a Markdown table.
   -d, --description             Show description.
-  -f, --first-line              Show first lines for values.
+  -f, --field=FIELD ...         Show specific field value. Supports multiple flags.
+      --first-line              Show first lines for values.
   -g, --general                 Show general fields.
   -n, --names                   Show variable names or options data instead of their descriptions.
   -o, --other                   Show other fields.
@@ -143,7 +144,7 @@ Debug: Disabled
 ### Configuration options (Markdown)
 
 ```txt
-$ mod info -fm
+$ mod info --first-line -m
 | Configuration                     | Default          | Description                                                             |
 | --------------------------------- | ---------------- | ----------------------------------------------------------------------- |
 | **Toggle tools key**              | _Right Bracket_  | Key used for toggling the tools                                         |

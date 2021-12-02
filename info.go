@@ -15,6 +15,7 @@ type Info struct {
 	Configuration         bool
 	ConfigurationMarkdown bool
 	Description           bool
+	Fields                []string
 	FirstLine             bool
 	General               bool
 	Names                 bool
@@ -33,7 +34,11 @@ func NewInfo() *Info {
 }
 
 func (i *Info) printGlobal(name string) {
-	g := i.modinfo.FieldByName(name)
+	g, err := i.modinfo.FieldByName(name)
+	if err != nil || g == nil {
+		return
+	}
+
 	n := g.Description
 	if i.Names {
 		n = g.Name
@@ -209,6 +214,29 @@ func (i *Info) print() error { //nolint:funlen,gocyclo
 	return nil
 }
 
+func (i *Info) printFields() error {
+	var fields []string
+
+	for _, field := range i.Fields {
+		f, err := i.modinfo.FieldByName(field)
+		if err != nil {
+			return err
+		}
+
+		if f != nil {
+			fields = append(fields, f.String())
+		} else {
+			fields = append(fields, "-")
+		}
+	}
+
+	for _, field := range fields {
+		fmt.Println(field)
+	}
+
+	return nil
+}
+
 func (i *Info) run(path string) error {
 	L := lua.NewState()
 	defer L.Close()
@@ -222,6 +250,13 @@ func (i *Info) run(path string) error {
 	}
 
 	i.modinfo = m
+
+	if len(i.Fields) > 0 {
+		if err := i.printFields(); err != nil {
+			return err
+		}
+		return nil
+	}
 
 	if err := i.print(); err != nil {
 		return err

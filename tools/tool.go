@@ -13,6 +13,7 @@ type Tooler interface {
 	Name() string
 	Path() string
 	Version() string
+	SetDockerized(*Dockerized) error
 	SetRunInDocker(bool)
 	ExecCommand(...string) *exec.Cmd
 	LookPath() (string, error)
@@ -24,6 +25,7 @@ type Tool struct {
 	Cmd           string
 	CmdArgs       []string
 	CmdDockerArgs []string
+	dockerized    *Dockerized
 	name          string
 	path          string
 	runInDocker   bool
@@ -33,17 +35,11 @@ type Tool struct {
 // NewTool creates a new Tool instance.
 func NewTool(name, cmd string) *Tool {
 	return &Tool{
-		Cmd:     cmd,
-		CmdArgs: []string{},
-		CmdDockerArgs: []string{
-			"run",
-			"--rm",
-			"-u",
-			"dst-mod",
-			"dstmodders/dst-mod:latest",
-		},
-		runInDocker: false,
+		Cmd:         cmd,
+		CmdArgs:     []string{},
+		dockerized:  NewDockerized(),
 		name:        name,
+		runInDocker: false,
 	}
 }
 
@@ -54,7 +50,7 @@ func (t *Tool) exec(name string, arg ...string) *exec.Cmd {
 }
 
 func (t *Tool) execDocker(arg ...string) *exec.Cmd {
-	a := t.CmdDockerArgs
+	a := t.dockerized.Args()
 	a = append(a, arg...)
 	return exec.Command("docker", a...)
 }
@@ -72,6 +68,13 @@ func (t *Tool) Path() string {
 // Version returns a version of the tool for both direct and Dockerized usage.
 func (t *Tool) Version() string {
 	return t.version
+}
+
+// SetDockerized sets Dockerized.
+func (t *Tool) SetDockerized(dockerized *Dockerized) error {
+	t.dockerized = dockerized
+	_, err := t.dockerized.PrepareArgs()
+	return err
 }
 
 // SetRunInDocker sets whether a tool should be run in Docker.

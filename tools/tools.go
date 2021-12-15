@@ -20,8 +20,9 @@ func init() {
 
 // Controller is the interface that wraps the Tools methods.
 type Controller interface {
-	LookPaths() error
-	LoadVersions() error
+	SetToolsRunInDocker(bool)
+	LookPaths()
+	LoadVersions()
 }
 
 // Tools represents all the supported tools.
@@ -66,22 +67,23 @@ func New() *Tools {
 	}
 }
 
-// LookPaths looks for paths of all tools.
-func (t *Tools) LookPaths() error {
+// SetToolsRunInDocker sets all tools to be run in Docker.
+func (t *Tools) SetToolsRunInDocker(runInDocker bool) {
 	for _, tool := range t.all {
-		if _, err := tool.LookPath(); err != nil {
-			return err
-		}
+		tool.SetRunInDocker(runInDocker)
 	}
-	return nil
+}
+
+// LookPaths looks for paths of all tools.
+func (t *Tools) LookPaths() {
+	for _, tool := range t.all {
+		_, _ = tool.LookPath()
+	}
 }
 
 // LoadVersions loads versions of all tools.
-func (t *Tools) LoadVersions() error {
+func (t *Tools) LoadVersions() {
 	for _, tool := range t.all {
-		if _, err := tool.LoadVersion(); err != nil {
-			return err
-		}
+		_, _ = tool.LoadVersion()
 	}
-	return nil
 }

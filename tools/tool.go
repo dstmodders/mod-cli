@@ -1,13 +1,19 @@
 package tools
 
-import "os/exec"
+import (
+	"os/exec"
+	"strings"
+)
 
 // Tooler is the interface that wraps the Tool methods.
 type Tooler interface {
+	exec(string, ...string) *exec.Cmd
+	execDocker(...string) *exec.Cmd
 	parseVersion(string) (string, error)
 	Name() string
 	Path() string
 	Version() string
+	SetRunInDocker(bool)
 	ExecCommand(...string) *exec.Cmd
 	LookPath() (string, error)
 	LoadVersion() (string, error)
@@ -18,9 +24,9 @@ type Tool struct {
 	Cmd           string
 	CmdArgs       []string
 	CmdDockerArgs []string
-	RunInDocker   bool
 	name          string
 	path          string
+	runInDocker   bool
 	version       string
 }
 
@@ -36,9 +42,21 @@ func NewTool(name, cmd string) *Tool {
 			"dst-mod",
 			"dstmodders/dst-mod:latest",
 		},
-		RunInDocker: false,
+		runInDocker: false,
 		name:        name,
 	}
+}
+
+func (t *Tool) exec(name string, arg ...string) *exec.Cmd {
+	a := t.CmdArgs
+	a = append(a, arg...)
+	return exec.Command(name, a...)
+}
+
+func (t *Tool) execDocker(arg ...string) *exec.Cmd {
+	a := t.CmdDockerArgs
+	a = append(a, arg...)
+	return exec.Command("docker", a...)
 }
 
 // Name returns a name of the tool.
@@ -56,27 +74,37 @@ func (t *Tool) Version() string {
 	return t.version
 }
 
+// SetRunInDocker sets whether a tool should be run in Docker.
+func (t *Tool) SetRunInDocker(runInDocker bool) {
+	t.runInDocker = runInDocker
+}
+
 // ExecCommand executes the command with the passed arguments either directly or
 // through a Docker container.
 func (t *Tool) ExecCommand(arg ...string) *exec.Cmd {
-	name := t.Cmd
-	a := t.CmdArgs
-	if t.RunInDocker {
-		name = "docker"
-		a = t.CmdDockerArgs
-		a = append(a, t.Cmd)
+	if t.runInDocker {
+		a := []string{t.Cmd}
+		a = append(a, arg...)
+		return t.execDocker(a...)
 	}
-	a = append(a, arg...)
-	return exec.Command(name, a...)
+	return t.exec(t.Cmd, arg...)
 }
 
 // LookPath looks for a direct path of the tool which can be retrieved later
 // using Path.
 func (t *Tool) LookPath() (string, error) {
+	if t.runInDocker {
+		cmd := t.execDocker("which", t.Cmd)
+		out, err := cmd.Output()
+		t.path = strings.TrimSpace(string(out))
+		return t.path, err
+	}
+
 	path, err := exec.LookPath(t.Cmd)
 	if err != nil {
 		return "", err
 	}
+
 	t.path = path
 	return path, nil
 }

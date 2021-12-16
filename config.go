@@ -10,14 +10,18 @@ import (
 )
 
 type Config struct {
-	Workshop ConfigYWorkshop
+	Workshop ConfigWorkshop
 	file     *os.File
 	yaml     ConfigYAML
 }
 
+type ConfigWorkshop struct {
+	Ignore []string
+}
+
 func NewConfig() *Config {
 	return &Config{
-		Workshop: ConfigYWorkshop{},
+		Workshop: ConfigWorkshop{},
 	}
 }
 
@@ -104,8 +108,4 @@ func (c *ConfigYAML) unmarshalFile(file *os.File) error {
 	}
 
 	return yaml.Unmarshal(in, &c)
-}
-
-type ConfigYWorkshop struct {
-	Ignore []string
 }

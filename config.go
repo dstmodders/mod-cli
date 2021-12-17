@@ -21,11 +21,27 @@ type ConfigWorkshop struct {
 
 func NewConfig() *Config {
 	return &Config{
-		Workshop: ConfigWorkshop{},
+		Workshop: ConfigWorkshop{
+			Ignore: []string{
+				".*",
+				"CHANGELOG.md",
+				"Makefile",
+				"README.md",
+				"codecov.yml",
+				"config.ld",
+				"docs/",
+				"lcov.info",
+				"luacov.*",
+				"modicon.png",
+				"preview.gif",
+				"readme/",
+				"spec/",
+			},
+		},
 	}
 }
 
-func invalidValueError(name string, args ...interface{}) error {
+func (c *Config) errorValue(name string, args ...interface{}) error {
 	errStr := fmt.Sprintf("invalid YAML %s value", name)
 	if len(args) > 0 {
 		return fmt.Errorf("%s: %s", errStr, args[0].(string))
@@ -33,41 +49,58 @@ func invalidValueError(name string, args ...interface{}) error {
 	return errors.New(errStr)
 }
 
-func (c *Config) parseYAMLIgnore(name string, value map[interface{}]interface{}) error {
-	expectedStr := "expected null or sequence"
-	for k, v := range value {
-		if k == "ignore" {
-			switch val := v.(type) {
-			case []interface{}:
-				for _, str := range val {
-					c.Workshop.Ignore = append(c.Workshop.Ignore, str.(string))
-				}
-				return nil
-			case map[interface{}]interface{}:
-				expectedStr = fmt.Sprintf("%s but got mapping", expectedStr)
-				return invalidValueError(name, expectedStr)
-			case nil:
-				return nil
-			default:
-				expectedStr = fmt.Sprintf("%s but got %s", expectedStr, reflect.TypeOf(v))
-				return invalidValueError(name, expectedStr)
+func (c *Config) errorExpected(name, expected string, value interface{}) error {
+	t := reflect.TypeOf(value).String()
+	switch value.(type) {
+	case []interface{}:
+		t = "sequence"
+	case map[interface{}]interface{}:
+		t = "mapping"
+	}
+	expected = fmt.Sprintf("expected %s but got %s", expected, t)
+	return c.errorValue(name, expected)
+}
+
+func (c *Config) toBool(name string, value interface{}, dest *bool) error {
+	expected := "bool"
+	switch val := value.(type) {
+	case bool:
+		*dest = val
+		return nil
+	default:
+		return c.errorExpected(name, expected, value)
+	}
+}
+
+func (c *Config) toSequence(name string, value interface{}, dest *[]string) error {
+	switch val := value.(type) {
+	case []interface{}:
+		if len(val) > 0 {
+			*dest = []string{}
+			for _, str := range val {
+				*dest = append(*dest, str.(string))
 			}
 		}
+		return nil
+	case nil:
+		return nil
+	default:
+		return c.errorExpected(name, "null or sequence", value)
 	}
-	return nil
 }
 
 func (c *Config) parseYAMLWorkshop() error {
 	switch val := c.yaml.Workshop.(type) {
 	case map[interface{}]interface{}:
-		return c.parseYAMLIgnore("workshop.ignore", val)
+		if err := c.toSequence("workshop.ignore", val["ignore"], &c.Workshop.Ignore); err != nil {
+			return err
+		}
+
+		return nil
 	case nil:
 		return nil
 	default:
-		return invalidValueError("workshop", fmt.Sprintf(
-			"expected mapping but got %s",
-			reflect.TypeOf(c.yaml.Workshop),
-		))
+		return c.errorExpected("workshop", "mapping", c.yaml.Workshop)
 	}
 }
 

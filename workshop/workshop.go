@@ -74,15 +74,7 @@ func New(src, dest string) (*Workshop, error) {
 	destDirName := filepath.Base(relDestPath)
 
 	return &Workshop{
-		Ignore: []string{
-			".*",
-			"Makefile",
-			"codecov.yml",
-			"config.ld",
-			"lcov.info",
-			"luacov.*",
-			"spec/",
-		},
+		Ignore:      []string{},
 		absDestPath: absDestPath,
 		absSrcPath:  absSrcPath,
 		destDirName: destDirName,

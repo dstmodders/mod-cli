@@ -65,6 +65,7 @@ func (d *Doctor) printTools() {
 	d.printTool(e.LDoc)
 	d.printTool(e.Luacheck)
 	d.printTool(e.Prettier)
+	d.printTool(e.StyLua)
 	d.printTool(e.Krane)
 	d.printTool(e.Ktech)
 	fmt.Println()
@@ -79,6 +80,7 @@ func (d *Doctor) printTools() {
 	d.printTool(e.LDoc)
 	d.printTool(e.Luacheck)
 	d.printTool(e.Prettier)
+	d.printTool(e.StyLua)
 	d.printTool(e.Krane)
 	d.printTool(e.Ktech)
 }

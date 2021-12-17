@@ -34,6 +34,7 @@ type Tools struct {
 	LDoc     *LDoc
 	Luacheck *Luacheck
 	Prettier *Prettier
+	StyLua   *StyLua
 	all      []Tooler
 }
 
@@ -46,6 +47,7 @@ func New() *Tools {
 	ldoc := NewLDoc()
 	luacheck := NewLuacheck()
 	prettier := NewPrettier()
+	stylua := NewStyLua()
 
 	return &Tools{
 		Busted:   busted,
@@ -55,6 +57,7 @@ func New() *Tools {
 		LDoc:     ldoc,
 		Luacheck: luacheck,
 		Prettier: prettier,
+		StyLua:   stylua,
 		all: []Tooler{
 			busted,
 			docker,
@@ -63,6 +66,7 @@ func New() *Tools {
 			ldoc,
 			luacheck,
 			prettier,
+			stylua,
 		},
 	}
 }

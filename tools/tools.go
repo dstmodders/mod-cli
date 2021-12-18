@@ -4,11 +4,11 @@ package tools
 
 import "regexp"
 
+const regexDockerVer string = `Docker version (.*), build (.*)`
+
 const regexSemVer string = `v?([0-9]+)(\.[0-9]+)?(\.[0-9]+)?` +
 	`(-([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?` +
 	`(\+([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?`
-
-const regexDockerVer string = `Docker version (.*), build (.*)`
 
 var versionRegex *regexp.Regexp
 var dockerVersionRegex *regexp.Regexp
@@ -39,15 +39,46 @@ type Tools struct {
 }
 
 // New creates a new Tools instance.
-func New() *Tools {
-	busted := NewBusted()
-	docker := NewDocker()
-	krane := NewKrane()
-	ktech := NewKtech()
-	ldoc := NewLDoc()
-	luacheck := NewLuacheck()
-	prettier := NewPrettier()
-	stylua := NewStyLua()
+func New() (*Tools, error) {
+	busted, err := NewBusted()
+	if err != nil {
+		return nil, err
+	}
+
+	docker, err := NewDocker()
+	if err != nil {
+		return nil, err
+	}
+
+	krane, err := NewKrane()
+	if err != nil {
+		return nil, err
+	}
+
+	ktech, err := NewKtech()
+	if err != nil {
+		return nil, err
+	}
+
+	ldoc, err := NewLDoc()
+	if err != nil {
+		return nil, err
+	}
+
+	luacheck, err := NewLuacheck()
+	if err != nil {
+		return nil, err
+	}
+
+	prettier, err := NewPrettier()
+	if err != nil {
+		return nil, err
+	}
+
+	stylua, err := NewStyLua()
+	if err != nil {
+		return nil, err
+	}
 
 	return &Tools{
 		Busted:   busted,
@@ -68,7 +99,7 @@ func New() *Tools {
 			prettier,
 			stylua,
 		},
-	}
+	}, nil
 }
 
 // SetToolsRunInDocker sets all tools to be run in Docker.

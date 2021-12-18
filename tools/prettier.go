@@ -10,29 +10,33 @@ type Prettier struct {
 }
 
 // NewPrettier creates a new Prettier instance.
-func NewPrettier() *Prettier {
-	return &Prettier{
-		Tool: *NewTool("Prettier", "prettier"),
+func NewPrettier() (*Prettier, error) {
+	tool, err := NewTool("Prettier", "prettier")
+	if err != nil {
+		return nil, err
 	}
+	return &Prettier{
+		Tool: *tool,
+	}, nil
 }
 
-func (d *Prettier) parseVersion(str string) (string, error) {
+func (p *Prettier) parseVersion(str string) (string, error) {
 	return strings.TrimSpace(str), nil
 }
 
 // LoadVersion loads a Prettier version.
-func (d *Prettier) LoadVersion() (string, error) {
-	cmd := d.ExecCommand("--version")
+func (p *Prettier) LoadVersion() (string, error) {
+	cmd := p.ExecCommand("--version")
 	out, err := cmd.Output()
 	if err != nil {
 		return "", err
 	}
 
-	ver, err := d.parseVersion(string(out))
+	ver, err := p.parseVersion(string(out))
 	if err != nil {
 		return ver, err
 	}
-	d.version = ver
+	p.version = ver
 
 	return ver, nil
 }

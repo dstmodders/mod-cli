@@ -13,10 +13,14 @@ type Luacheck struct {
 }
 
 // NewLuacheck creates a new Luacheck instance.
-func NewLuacheck() *Luacheck {
-	return &Luacheck{
-		Tool: *NewTool("Luacheck", "luacheck"),
+func NewLuacheck() (*Luacheck, error) {
+	tool, err := NewTool("Luacheck", "luacheck")
+	if err != nil {
+		return nil, err
 	}
+	return &Luacheck{
+		Tool: *tool,
+	}, nil
 }
 
 func (l *Luacheck) parseVersion(str string) (string, error) {

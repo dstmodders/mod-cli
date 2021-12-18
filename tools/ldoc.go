@@ -11,10 +11,14 @@ type LDoc struct {
 }
 
 // NewLDoc creates a new LDoc instance.
-func NewLDoc() *LDoc {
-	return &LDoc{
-		Tool: *NewTool("LDoc", "ldoc"),
+func NewLDoc() (*LDoc, error) {
+	tool, err := NewTool("LDoc", "ldoc")
+	if err != nil {
+		return nil, err
 	}
+	return &LDoc{
+		Tool: *tool,
+	}, nil
 }
 
 func (l *LDoc) parseVersion(str string) (string, error) {

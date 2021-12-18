@@ -11,10 +11,14 @@ type Busted struct {
 }
 
 // NewBusted creates a new Busted instance.
-func NewBusted() *Busted {
-	return &Busted{
-		Tool: *NewTool("Busted", "busted"),
+func NewBusted() (*Busted, error) {
+	tool, err := NewTool("Busted", "busted")
+	if err != nil {
+		return nil, err
 	}
+	return &Busted{
+		Tool: *tool,
+	}, nil
 }
 
 func (b *Busted) parseVersion(str string) (string, error) {

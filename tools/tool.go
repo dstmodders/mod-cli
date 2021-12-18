@@ -1,8 +1,11 @@
 package tools
 
 import (
+	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/dstmodders/mod-cli/dir"
 )
 
 // Tooler is the interface that wraps the Tool methods.
@@ -14,6 +17,7 @@ type Tooler interface {
 	Path() string
 	Version() string
 	SetDockerized(*Dockerized) error
+	SetIgnore([]string)
 	SetRunInDocker(bool)
 	ExecCommand(...string) *exec.Cmd
 	LookPath() (string, error)
@@ -22,25 +26,54 @@ type Tooler interface {
 
 // Tool represents a single tool.
 type Tool struct {
-	Cmd           string
-	CmdArgs       []string
-	CmdDockerArgs []string
-	dockerized    *Dockerized
-	name          string
-	path          string
-	runInDocker   bool
-	version       string
+	// Cmd holds a command.
+	Cmd string
+
+	// CmdArgs holds a command arguments.
+	CmdArgs []string
+
+	dockerized  *Dockerized
+	name        string
+	path        string
+	runInDocker bool
+	version     string
+	workingDir  dir.Dir
+}
+
+// Lint represents a linting result.
+type Lint struct {
+	Files []LintFile
+}
+
+// LintFile represents a single linting file.
+type LintFile struct {
+	// Path holds a file path.
+	Path string
+
+	// Issues holds the number of found issues.
+	Issues int
 }
 
 // NewTool creates a new Tool instance.
-func NewTool(name, cmd string) *Tool {
+func NewTool(name, cmd string) (*Tool, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
+	workingDir, err := dir.New(wd)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Tool{
 		Cmd:         cmd,
 		CmdArgs:     []string{},
 		dockerized:  NewDockerized(),
 		name:        name,
 		runInDocker: false,
-	}
+		workingDir:  *workingDir,
+	}, nil
 }
 
 func (t *Tool) exec(name string, arg ...string) *exec.Cmd {
@@ -70,11 +103,16 @@ func (t *Tool) Version() string {
 	return t.version
 }
 
-// SetDockerized sets Dockerized.
+// SetDockerized sets dockerized.
 func (t *Tool) SetDockerized(dockerized *Dockerized) error {
 	t.dockerized = dockerized
 	_, err := t.dockerized.PrepareArgs()
 	return err
+}
+
+// SetIgnore sets ignore list.
+func (t *Tool) SetIgnore(ignore []string) {
+	t.workingDir.SetIgnore(ignore)
 }
 
 // SetRunInDocker sets whether a tool should be run in Docker.

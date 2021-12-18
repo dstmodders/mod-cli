@@ -12,10 +12,14 @@ type Docker struct {
 }
 
 // NewDocker creates a new Docker instance.
-func NewDocker() *Docker {
-	return &Docker{
-		Tool: *NewTool("Docker", "docker"),
+func NewDocker() (*Docker, error) {
+	tool, err := NewTool("Docker", "docker")
+	if err != nil {
+		return nil, err
 	}
+	return &Docker{
+		Tool: *tool,
+	}, nil
 }
 
 func (d *Docker) parseVersion(str string) (string, error) {

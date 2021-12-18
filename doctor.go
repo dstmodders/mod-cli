@@ -9,8 +9,8 @@ import (
 )
 
 type Doctor struct {
-	cfg  *Config
-	exec *tools.Tools
+	cfg   *Config
+	tools *tools.Tools
 }
 
 func NewDoctor(cfg *Config) *Doctor {
@@ -53,40 +53,44 @@ func (d *Doctor) printTool(tool tools.Tooler) {
 }
 
 func (d *Doctor) printTools() {
-	e := d.exec
+	t := d.tools
 
 	printTitle("Tools | System")
 
-	e.LookPaths()
-	e.LoadVersions()
+	t.LookPaths()
+	t.LoadVersions()
 
-	d.printTool(e.Busted)
-	d.printTool(e.Docker)
-	d.printTool(e.LDoc)
-	d.printTool(e.Luacheck)
-	d.printTool(e.Prettier)
-	d.printTool(e.StyLua)
-	d.printTool(e.Krane)
-	d.printTool(e.Ktech)
+	d.printTool(t.Busted)
+	d.printTool(t.Docker)
+	d.printTool(t.LDoc)
+	d.printTool(t.Luacheck)
+	d.printTool(t.Prettier)
+	d.printTool(t.StyLua)
+	d.printTool(t.Krane)
+	d.printTool(t.Ktech)
 	fmt.Println()
 
 	printTitle("Tools | Dockerized")
 
-	e.SetToolsRunInDocker(true)
-	e.LookPaths()
-	e.LoadVersions()
+	t.SetToolsRunInDocker(true)
+	t.LookPaths()
+	t.LoadVersions()
 
-	d.printTool(e.Busted)
-	d.printTool(e.LDoc)
-	d.printTool(e.Luacheck)
-	d.printTool(e.Prettier)
-	d.printTool(e.StyLua)
-	d.printTool(e.Krane)
-	d.printTool(e.Ktech)
+	d.printTool(t.Busted)
+	d.printTool(t.LDoc)
+	d.printTool(t.Luacheck)
+	d.printTool(t.Prettier)
+	d.printTool(t.StyLua)
+	d.printTool(t.Krane)
+	d.printTool(t.Ktech)
 }
 
 func (d *Doctor) print() error {
-	d.exec = tools.New()
+	t, err := tools.New()
+	if err != nil {
+		return err
+	}
+	d.tools = t
 
 	d.printOS()
 	fmt.Println()

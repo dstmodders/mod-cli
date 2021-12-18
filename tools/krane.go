@@ -11,10 +11,14 @@ type Krane struct {
 }
 
 // NewKrane creates a new Krane instance.
-func NewKrane() *Krane {
-	return &Krane{
-		Tool: *NewTool("krane", "krane"),
+func NewKrane() (*Krane, error) {
+	tool, err := NewTool("krane", "krane")
+	if err != nil {
+		return nil, err
 	}
+	return &Krane{
+		Tool: *tool,
+	}, nil
 }
 
 func (k *Krane) parseVersion(str string) (string, error) {

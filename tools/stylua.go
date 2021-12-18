@@ -13,10 +13,14 @@ type StyLua struct {
 }
 
 // NewStyLua creates a new StyLua instance.
-func NewStyLua() *StyLua {
-	return &StyLua{
-		Tool: *NewTool("StyLua", "stylua"),
+func NewStyLua() (*StyLua, error) {
+	tool, err := NewTool("StyLua", "stylua")
+	if err != nil {
+		return nil, err
 	}
+	return &StyLua{
+		Tool: *tool,
+	}, nil
 }
 
 func (s *StyLua) parseVersion(str string) (string, error) {

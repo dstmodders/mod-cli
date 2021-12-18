@@ -11,10 +11,14 @@ type Ktech struct {
 }
 
 // NewKtech creates a new Ktech instance.
-func NewKtech() *Ktech {
-	return &Ktech{
-		Tool: *NewTool("ktech", "ktech"),
+func NewKtech() (*Ktech, error) {
+	tool, err := NewTool("ktech", "ktech")
+	if err != nil {
+		return nil, err
 	}
+	return &Ktech{
+		Tool: *tool,
+	}, nil
 }
 
 func (k *Ktech) parseVersion(str string) (string, error) {

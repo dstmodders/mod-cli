@@ -96,11 +96,11 @@ func (w *Workshop) run() error {
 		return err
 	}
 
-	w.workshop = ws
+	ignore := w.cfg.Workshop.Ignore
+	ignore = append(ignore, w.destName)
+	ws.SetIgnore(ignore)
 
-	if len(w.cfg.Workshop.Ignore) > 0 {
-		w.workshop.Ignore = w.cfg.Workshop.Ignore
-	}
+	w.workshop = ws
 
 	if _, _, err := ws.GetFiles(); err != nil {
 		return err

@@ -1,6 +1,6 @@
 // Package workshop has been designed to prepare a mod directory or archive for
 // Steam Workshop. It allows including only the essential files based on ignore
-// paths. In the future, it may also include the features to automatically
+// list. In the future, it may also include the features to automatically
 // publish your mod.
 package workshop
 
@@ -11,13 +11,13 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 
-	"github.com/mattn/go-zglob"
+	"github.com/dstmodders/mod-cli/dir"
 )
 
 // Controller is the interface that wraps the Workshop methods.
 type Controller interface {
+	SetIgnore([]string)
 	IsPathIgnored(string) bool
 	GetFiles() ([]string, int64, error)
 	DestDirExists() bool
@@ -35,15 +35,11 @@ type Controller interface {
 	PrintFiles()
 }
 
-// Workshop represents the workshop-related data.
+// Workshop represents a workshop-related data.
 type Workshop struct {
-	// Ignore holds a list of files to ignore.
-	Ignore []string
-
 	files       []string
 	filesSize   int64
-	relSrcPath  string
-	absSrcPath  string
+	srcDir      dir.Dir
 	relDestPath string
 	absDestPath string
 	destDirName string
@@ -51,17 +47,12 @@ type Workshop struct {
 
 // New creates a new Workshop instance.
 func New(src, dest string) (*Workshop, error) {
-	relSrcPath, err := filepath.Rel(src, src)
+	srcDir, err := dir.New(src)
 	if err != nil {
 		return nil, err
 	}
 
 	relDestPath, err := filepath.Rel(src, dest)
-	if err != nil {
-		return nil, err
-	}
-
-	absSrcPath, err := filepath.Abs(src)
 	if err != nil {
 		return nil, err
 	}
@@ -74,54 +65,29 @@ func New(src, dest string) (*Workshop, error) {
 	destDirName := filepath.Base(relDestPath)
 
 	return &Workshop{
-		Ignore:      []string{},
+		srcDir:      *srcDir,
 		absDestPath: absDestPath,
-		absSrcPath:  absSrcPath,
 		destDirName: destDirName,
 		relDestPath: relDestPath,
-		relSrcPath:  relSrcPath,
 	}, nil
 }
 
-// IsPathIgnored checks if the provided path is ignored based on Ignore.
-func (w *Workshop) IsPathIgnored(path string) bool {
-	matched, _ := zglob.Match(w.destDirName+"**/*", path)
-	if matched {
-		return true
-	}
+// SetIgnore sets ignore list.
+func (w *Workshop) SetIgnore(ignore []string) {
+	w.srcDir.SetIgnore(ignore)
+}
 
-	for _, ignore := range w.Ignore {
-		ignore = strings.TrimSuffix(ignore, "/")
-		matched, _ = zglob.Match("**/"+ignore+"**/*", path)
-		if matched {
-			return true
-		}
-	}
-	return false
+// IsPathIgnored checks if the provided path is ignored.
+func (w *Workshop) IsPathIgnored(path string) bool {
+	return w.srcDir.IsPathIgnored(path)
 }
 
 // GetFiles gets a list of files and their size in total from the source path
-// based on Ignore.
-func (w *Workshop) GetFiles() (files []string, size int64, err error) {
-	if err := filepath.Walk(w.relSrcPath, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if info.IsDir() || w.IsPathIgnored(path) {
-			return nil
-		}
-
-		files = append(files, path)
-		size += info.Size()
-		return nil
-	}); err != nil {
-		return files, size, err
-	}
-
+// based on ignore list.
+func (w *Workshop) GetFiles() ([]string, int64, error) {
+	files, size, err := w.srcDir.ListFiles()
 	w.files = files
 	w.filesSize = size
-
 	return files, size, err
 }
 
@@ -266,12 +232,12 @@ func (w *Workshop) FilesSize() int64 {
 
 // RelSrcPath gets a relative source path.
 func (w *Workshop) RelSrcPath() string {
-	return w.relSrcPath
+	return w.srcDir.RelPath()
 }
 
 // AbsSrcPath gets an absolute source path.
 func (w *Workshop) AbsSrcPath() string {
-	return w.absSrcPath
+	return w.srcDir.AbsPath()
 }
 
 // RelDestPath gets a relative destination path.

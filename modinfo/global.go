@@ -7,9 +7,9 @@ func InterfaceToString(value interface{}) string {
 	switch val := value.(type) {
 	case bool:
 		if val {
-			return "yes"
+			return "true"
 		}
-		return "no"
+		return "false"
 	case float64:
 		return strconv.FormatFloat(val, 'f', -1, 64)
 	case int:

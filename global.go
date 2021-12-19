@@ -16,10 +16,10 @@ func printNameValue(name string, value interface{}) {
 	switch val := value.(type) {
 	case bool:
 		if val {
-			v = "Yes"
+			v = "true"
 			break
 		}
-		v = "No"
+		v = "false"
 	case int:
 		v = strconv.Itoa(val)
 	case string:

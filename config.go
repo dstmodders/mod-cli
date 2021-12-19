@@ -10,9 +10,26 @@ import (
 )
 
 type Config struct {
+	Format   ConfigFormat
+	Lint     ConfigLint
 	Workshop ConfigWorkshop
 	file     *os.File
 	yaml     ConfigYAML
+}
+
+type ConfigFormat struct {
+	Prettier ConfigTool
+	StyLua   ConfigTool
+}
+
+type ConfigLint struct {
+	Luacheck ConfigTool
+}
+
+type ConfigTool struct {
+	Docker  bool
+	Enabled bool
+	Ignore  []string
 }
 
 type ConfigWorkshop struct {
@@ -20,7 +37,23 @@ type ConfigWorkshop struct {
 }
 
 func NewConfig() *Config {
+	tool := ConfigTool{
+		Ignore: []string{
+			".idea/",
+		},
+		Enabled: true,
+	}
+
 	return &Config{
+		Format: ConfigFormat{
+			Prettier: tool,
+			StyLua:   tool,
+		},
+		Lint: ConfigLint{
+			Luacheck: ConfigTool{
+				Enabled: true,
+			},
+		},
 		Workshop: ConfigWorkshop{
 			Ignore: []string{
 				".*",
@@ -89,13 +122,75 @@ func (c *Config) toSequence(name string, value interface{}, dest *[]string) erro
 	}
 }
 
+func (c *Config) parseYAMLTool(name string, value interface{}, dest *ConfigTool) error {
+	switch val := value.(type) {
+	case map[interface{}]interface{}:
+		dest.Enabled = true
+
+		if val["docker"] != nil {
+			if err := c.toBool(name, val["docker"], &dest.Docker); err != nil {
+				return err
+			}
+		}
+
+		if val["ignore"] != nil {
+			if err := c.toSequence(name, val["ignore"], &dest.Ignore); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	case bool:
+		if err := c.toBool(name, val, &dest.Enabled); err != nil {
+			return err
+		}
+		return nil
+	case nil:
+		return nil
+	default:
+		return c.errorExpected(name, "bool or mapping", value)
+	}
+}
+
+func (c *Config) parseYAMLFormat() error {
+	switch val := c.yaml.Format.(type) {
+	case map[interface{}]interface{}:
+		if err := c.parseYAMLTool("format.prettier", val["prettier"], &c.Format.Prettier); err != nil {
+			return err
+		}
+
+		if err := c.parseYAMLTool("format.stylua", val["stylua"], &c.Format.StyLua); err != nil {
+			return err
+		}
+
+		return nil
+	case nil:
+		return nil
+	default:
+		return c.errorExpected("format", "mapping", c.yaml.Format)
+	}
+}
+
+func (c *Config) parseYAMLLint() error {
+	switch val := c.yaml.Lint.(type) {
+	case map[interface{}]interface{}:
+		if err := c.parseYAMLTool("lint.luacheck", val["luacheck"], &c.Lint.Luacheck); err != nil {
+			return err
+		}
+		return nil
+	case nil:
+		return nil
+	default:
+		return c.errorExpected("lint", "mapping", c.yaml.Lint)
+	}
+}
+
 func (c *Config) parseYAMLWorkshop() error {
 	switch val := c.yaml.Workshop.(type) {
 	case map[interface{}]interface{}:
 		if err := c.toSequence("workshop.ignore", val["ignore"], &c.Workshop.Ignore); err != nil {
 			return err
 		}
-
 		return nil
 	case nil:
 		return nil
@@ -113,6 +208,14 @@ func (c *Config) load(file *os.File) error {
 	c.file = file
 	c.yaml = *yml
 
+	if err := c.parseYAMLFormat(); err != nil {
+		return err
+	}
+
+	if err := c.parseYAMLLint(); err != nil {
+		return err
+	}
+
 	if err := c.parseYAMLWorkshop(); err != nil {
 		return err
 	}
@@ -121,6 +224,8 @@ func (c *Config) load(file *os.File) error {
 }
 
 type ConfigYAML struct {
+	Format   interface{} `yaml:"format"`
+	Lint     interface{} `yaml:"lint"`
 	Workshop interface{} `yaml:"workshop"`
 }
 

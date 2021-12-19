@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"bufio"
 	"bytes"
 	"errors"
 	"io"
@@ -54,4 +55,40 @@ func (s *StyLua) LoadVersion() (string, error) {
 	s.version = ver
 
 	return ver, nil
+}
+
+// Check checks formatting in the provided files.
+func (s *StyLua) Check(arg ...string) (result Format, err error) {
+	if len(arg) == 0 {
+		files, _, _ := s.workingDir.ListFiles(".lua")
+		arg = append(arg, files...)
+	}
+
+	a := []string{"-c"}
+	a = append(a, arg...)
+
+	cmd := s.ExecCommand(a...)
+	stdout, _ := cmd.StdoutPipe()
+
+	if err := cmd.Start(); err != nil {
+		return result, err
+	}
+
+	scanner := bufio.NewScanner(stdout)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		line := scanner.Text()
+		line = ansiRegex.ReplaceAllString(line, "")
+		if strings.HasPrefix(line, "Diff in ") {
+			str := strings.TrimPrefix(line, "Diff in ")
+			str = strings.TrimSuffix(str, ":")
+			result.Files = append(result.Files, FormatFile{
+				Path: strings.TrimSpace(str),
+			})
+		}
+	}
+
+	_ = cmd.Wait()
+
+	return result, nil
 }

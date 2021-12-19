@@ -40,6 +40,17 @@ type Tool struct {
 	workingDir  dir.Dir
 }
 
+// Format represents a formatting result.
+type Format struct {
+	Files []FormatFile
+}
+
+// FormatFile represents a single formatting file.
+type FormatFile struct {
+	// Path holds a file path.
+	Path string
+}
+
 // Lint represents a linting result.
 type Lint struct {
 	Files []LintFile

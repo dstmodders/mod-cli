@@ -32,8 +32,10 @@ var (
 
 	doctorCmd = app.Command("doctor", "Check health of this CLI app.")
 
-	formatCmd       = app.Command("format", "Code formatting tools: Prettier and StyLua.")
-	formatCmdDocker = formatCmd.Flag("docker", "Run through Docker.").Short('d').Bool()
+	formatCmd         = app.Command("format", "Code formatting tools: Prettier and StyLua.")
+	formatCmdDocker   = formatCmd.Flag("docker", "Run through Docker.").Short('d').Bool()
+	formatCmdPrettier = formatCmd.Flag("prettier", "Run Prettier.").Short('p').Bool()
+	formatCmdStyLua   = formatCmd.Flag("stylua", "Run StyLua.").Short('s').Bool()
 
 	infoCmd                      = app.Command("info", "Mod info tools.")
 	infoCmdPath                  = infoCmd.Arg("path", "Path to modinfo.lua.").Default("modinfo.lua").String()
@@ -47,8 +49,9 @@ var (
 	infoCmdNames                 = infoCmd.Flag("names", "Show variable names or options data instead of their descriptions.").Short('n').Bool()
 	infoCmdOther                 = infoCmd.Flag("other", "Show other fields.").Short('o').Bool()
 
-	lintCmd       = app.Command("lint", "Code linting tools: Luacheck.")
-	lintCmdDocker = lintCmd.Flag("docker", "Run through Docker.").Short('d').Bool()
+	lintCmd         = app.Command("lint", "Code linting tools: Luacheck.")
+	lintCmdDocker   = lintCmd.Flag("docker", "Run through Docker.").Short('d').Bool()
+	lintCmdLuacheck = lintCmd.Flag("luacheck", "Run Luacheck.").Short('l').Bool()
 
 	workshopCmd     = app.Command("workshop", "Steam Workshop tools.")
 	workshopCmdPath = workshopCmd.Arg("path", "Path to mod directory.").Default(".").ExistingDir()
@@ -64,6 +67,12 @@ func fatalError(msg string, args ...interface{}) {
 		fmt.Printf("[error] %s\n", msg)
 	}
 	os.Exit(1)
+}
+
+func enableConfigBool(value *bool, docker *bool) {
+	if !*value && *docker {
+		*value = true
+	}
 }
 
 func loadConfig() {
@@ -98,6 +107,16 @@ func loadConfig() {
 			fatalError(errMsg, err)
 		}
 	}
+
+	// format
+	enableConfigBool(&cfg.Format.Prettier.Docker, formatCmdDocker)
+	enableConfigBool(&cfg.Format.StyLua.Docker, formatCmdDocker)
+	enableConfigBool(&cfg.Format.Prettier.Enabled, formatCmdPrettier)
+	enableConfigBool(&cfg.Format.StyLua.Enabled, formatCmdStyLua)
+
+	// lint
+	enableConfigBool(&cfg.Lint.Luacheck.Docker, lintCmdDocker)
+	enableConfigBool(&cfg.Lint.Luacheck.Enabled, lintCmdLuacheck)
 }
 
 func runChangelog() {
@@ -165,24 +184,19 @@ func runWorkshop() {
 	}
 }
 
-func init() {
+func main() {
 	// kingpin
 	app.UsageTemplate(kingpin.DefaultUsageTemplate).Version(version)
 	app.HelpFlag.Short('h')
 	app.VersionFlag.Short('v')
-}
 
-func main() {
 	command, err := app.Parse(os.Args[1:])
 	if err != nil {
 		fatalError("failed to parse arguments", err)
 	}
 
+	// config
 	loadConfig()
-
-	cfg.Format.Prettier.Docker = *formatCmdDocker
-	cfg.Format.StyLua.Docker = *formatCmdDocker
-	cfg.Lint.Luacheck.Docker = *lintCmdDocker
 
 	// commands
 	switch kingpin.MustParse(command, err) {

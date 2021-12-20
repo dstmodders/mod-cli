@@ -64,10 +64,6 @@ func (l *Format) runStyLua() error {
 }
 
 func (l *Format) run() {
-	if !l.cfg.Format.Prettier.Enabled && !l.cfg.Format.StyLua.Enabled {
-		fmt.Println("")
-	}
-
 	if l.cfg.Format.Prettier.Enabled {
 		printTitle("Prettier")
 		_ = l.runPrettier()

@@ -47,6 +47,9 @@ var (
 	infoCmdNames                 = infoCmd.Flag("names", "Show variable names or options data instead of their descriptions.").Short('n').Bool()
 	infoCmdOther                 = infoCmd.Flag("other", "Show other fields.").Short('o').Bool()
 
+	lintCmd       = app.Command("lint", "Code linting tools: Luacheck.")
+	lintCmdDocker = lintCmd.Flag("docker", "Run through Docker.").Short('d').Bool()
+
 	workshopCmd     = app.Command("workshop", "Steam Workshop tools.")
 	workshopCmdPath = workshopCmd.Arg("path", "Path to mod directory.").Default(".").ExistingDir()
 	workshopCmdList = workshopCmd.Flag("list", "Show only files that are going to be included.").Short('l').Bool()
@@ -142,6 +145,14 @@ func runInfo() {
 	}
 }
 
+func runLint() {
+	l, err := NewLint(cfg)
+	if err != nil {
+		fatalError(err.Error())
+	}
+	l.run()
+}
+
 func runWorkshop() {
 	w := NewWorkshop(cfg)
 	w.destName = *workshopCmdName
@@ -171,6 +182,7 @@ func main() {
 
 	cfg.Format.Prettier.Docker = *formatCmdDocker
 	cfg.Format.StyLua.Docker = *formatCmdDocker
+	cfg.Lint.Luacheck.Docker = *lintCmdDocker
 
 	// commands
 	switch kingpin.MustParse(command, err) {
@@ -182,6 +194,8 @@ func main() {
 		runFormat()
 	case infoCmd.FullCommand():
 		runInfo()
+	case lintCmd.FullCommand():
+		runLint()
 	case workshopCmd.FullCommand():
 		runWorkshop()
 	}

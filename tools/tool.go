@@ -21,6 +21,8 @@ type Tooler interface {
 	SetRunInDocker(bool)
 	ExecCommand(...string) *exec.Cmd
 	LookPath() (string, error)
+	ExistsOnSystem() bool
+	ExistsInDocker() bool
 	LoadVersion() (string, error)
 }
 
@@ -159,4 +161,21 @@ func (t *Tool) LookPath() (string, error) {
 
 	t.path = path
 	return path, nil
+}
+
+// ExistsOnSystem checks if the tool exists on the system.
+func (t *Tool) ExistsOnSystem() bool {
+	_, err := exec.LookPath(t.Cmd)
+	return err == nil
+}
+
+// ExistsInDocker checks if the tool exists inside a Docker container.
+func (t *Tool) ExistsInDocker() bool {
+	cmd := t.execDocker("which", t.Cmd)
+	out, err := cmd.Output()
+	if err != nil {
+		return false
+	}
+	t.path = strings.TrimSpace(string(out))
+	return len(t.path) > 0
 }

@@ -333,10 +333,7 @@ func (m *ModInfo) FieldByName(name string) (*Field, error) {
 		return val, nil
 	}
 
-	return nil, fmt.Errorf(
-		"field %s is not supported",
-		name,
-	)
+	return nil, fmt.Errorf("field %s is not supported", name)
 }
 
 // FieldsByName returns multiple Field structs based on the provided global

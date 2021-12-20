@@ -54,7 +54,8 @@ func (i *Info) printGeneral() {
 }
 
 func (i *Info) printDescription() {
-	fmt.Println(i.modinfo.FieldByName("description"))
+	f, _ := i.modinfo.FieldByName("description")
+	fmt.Println(f)
 }
 
 func (i *Info) printCompatibility() {

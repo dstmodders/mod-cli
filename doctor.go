@@ -86,8 +86,12 @@ func (d *Doctor) printTools() {
 	d.printTool(t.StyLua)
 	d.printTool(t.Krane)
 	d.printTool(t.Ktech)
-	fmt.Println()
 
+	if !t.Docker.ExistsOnSystem() {
+		return
+	}
+
+	fmt.Println()
 	printTitle("Tools | Dockerized")
 
 	t.SetToolsRunInDocker(true)
@@ -113,6 +117,9 @@ func (d *Doctor) print() error {
 	d.printOS()
 	fmt.Println()
 
+	d.printTools()
+	fmt.Println()
+
 	printTitle("Format | Prettier")
 	d.printConfigLintTool(d.cfg.Format.Prettier)
 	fmt.Println()
@@ -127,9 +134,6 @@ func (d *Doctor) print() error {
 
 	printTitle("Workshop")
 	d.printIgnore(d.cfg.Workshop.Ignore)
-	fmt.Println()
-
-	d.printTools()
 
 	return nil
 }

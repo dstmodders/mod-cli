@@ -3,15 +3,25 @@ package tools
 import (
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 )
 
 // Dockerized represents a Docker arguments to run a tool.
 type Dockerized struct {
-	Image  string
+	// Image hold the image name and tag. By default: dstmodders/dst-mod:latest.
+	Image string
+
+	// Remove sets whether a container should be removed right after running. By
+	// default: true.
 	Remove bool
-	User   string
-	args   []string
+
+	// User holds a username or UID to run a container as. By default: dst-mod.
+	User string
+
+	// Volume holds a volume to mount. By default, points to a working directory.
+	Volume string
+
+	args []string
 }
 
 // NewDockerized creates a new Dockerized instance.
@@ -32,12 +42,15 @@ func (d *Dockerized) Args() []string {
 
 // PrepareArgs prepare arguments to return later using Args.
 func (d *Dockerized) PrepareArgs() (result []string, err error) {
-	dir, err := os.Getwd()
-	if err != nil {
-		return result, err
+	volume := d.Volume
+
+	if len(volume) == 0 {
+		volume, err = os.Getwd()
+		if err != nil {
+			return result, err
+		}
 	}
 
-	base := path.Base(dir)
 	result = []string{"run"}
 
 	if d.Remove {
@@ -49,9 +62,10 @@ func (d *Dockerized) PrepareArgs() (result []string, err error) {
 		result = append(result, d.User)
 	}
 
-	if len(d.User) > 0 {
+	if len(volume) > 0 {
+		base := filepath.Base(volume)
 		result = append(result, "-v")
-		result = append(result, fmt.Sprintf("%s:/opt/%s", dir, base))
+		result = append(result, fmt.Sprintf("%s:/opt/%s", volume, base))
 		result = append(result, "-w")
 		result = append(result, fmt.Sprintf("/opt/%s", base))
 	}

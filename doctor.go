@@ -35,6 +35,24 @@ func (d *Doctor) printOS() {
 	printNameValue("CPUs", gi.CPUs)
 }
 
+func (d *Doctor) printIgnore(ignores []string) {
+	if len(ignores) == 0 {
+		fmt.Printf("%s: -\n", "Ignore")
+		return
+	}
+
+	fmt.Printf("%s:\n\n", "Ignore")
+	for _, ignore := range ignores {
+		fmt.Printf("  %s\n", ignore)
+	}
+}
+
+func (d *Doctor) printConfigLintTool(cfg ConfigTool) {
+	printNameValue("Enabled", cfg.Enabled)
+	printNameValue("Dockerized", cfg.Docker)
+	d.printIgnore(cfg.Ignore)
+}
+
 func (d *Doctor) printTool(tool tools.Tooler) {
 	name := tool.Name()
 	path := tool.Path()
@@ -93,6 +111,22 @@ func (d *Doctor) print() error {
 	d.tools = t
 
 	d.printOS()
+	fmt.Println()
+
+	printTitle("Format | Prettier")
+	d.printConfigLintTool(d.cfg.Format.Prettier)
+	fmt.Println()
+
+	printTitle("Format | StyLua")
+	d.printConfigLintTool(d.cfg.Format.StyLua)
+	fmt.Println()
+
+	printTitle("Lint | Luacheck")
+	d.printConfigLintTool(d.cfg.Lint.Luacheck)
+	fmt.Println()
+
+	printTitle("Workshop")
+	d.printIgnore(d.cfg.Workshop.Ignore)
 	fmt.Println()
 
 	d.printTools()

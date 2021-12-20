@@ -6,16 +6,39 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/dstmodders/mod-cli/tools"
 	"github.com/fatih/color"
 )
 
 func fatalError(msg string, args ...interface{}) {
 	if len(args) > 0 {
-		color.Red("Error: %s (%s)", msg, args[0].(error).Error())
+		color.Red("Error: %s (%s)\n", msg, args[0].(error).Error())
 	} else {
-		color.Red("Error: %s", msg)
+		color.Red("Error: %s\n", msg)
 	}
 	os.Exit(1)
+}
+
+func checkIfToolExists(docker tools.Tooler, tool tools.Tooler) {
+	if !tool.ExistsOnSystem() {
+		if !docker.ExistsOnSystem() {
+			fatalError(fmt.Sprintf(
+				"neither %s nor %s are available on the system. Install at least %s",
+				tool.Name(),
+				docker.Name(),
+				docker.Name(),
+			))
+		}
+
+		if !tool.ExistsInDocker() {
+			fatalError(fmt.Sprintf(
+				"%s is not available neither on the system nor in Docker",
+				tool.Name(),
+			))
+		}
+
+		tool.SetRunInDocker(true)
+	}
 }
 
 func printTitle(str string) {

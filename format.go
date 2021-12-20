@@ -46,6 +46,7 @@ func (l *Format) printFormat(format tools.Format) {
 }
 
 func (l *Format) runPrettier() error {
+	checkIfToolExists(l.tools.Docker, l.tools.Prettier)
 	format, err := l.tools.Prettier.Check()
 	if err != nil {
 		return err
@@ -55,6 +56,7 @@ func (l *Format) runPrettier() error {
 }
 
 func (l *Format) runStyLua() error {
+	checkIfToolExists(l.tools.Docker, l.tools.StyLua)
 	format, err := l.tools.StyLua.Check()
 	if err != nil {
 		return err
@@ -64,6 +66,10 @@ func (l *Format) runStyLua() error {
 }
 
 func (l *Format) run() {
+	if !l.cfg.Format.Prettier.Enabled && !l.cfg.Format.StyLua.Enabled {
+		fatalError("both Prettier and StyLua are disabled. Enable at least one of them first")
+	}
+
 	if l.cfg.Format.Prettier.Enabled {
 		printTitle("Prettier")
 		_ = l.runPrettier()

@@ -51,6 +51,7 @@ func (l *Lint) printLint(lint tools.Lint) {
 }
 
 func (l *Lint) runLuacheck() error {
+	checkIfToolExists(l.tools.Docker, l.tools.Luacheck)
 	lint, err := l.tools.Luacheck.Lint()
 	if err != nil {
 		return err
@@ -60,6 +61,10 @@ func (l *Lint) runLuacheck() error {
 }
 
 func (l *Lint) run() {
+	if !l.cfg.Lint.Luacheck.Enabled {
+		fatalError("Luacheck is disabled. Enable it first")
+	}
+
 	if l.cfg.Lint.Luacheck.Enabled {
 		printTitle("Luacheck")
 		_ = l.runLuacheck()

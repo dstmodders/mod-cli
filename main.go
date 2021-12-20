@@ -60,15 +60,6 @@ var (
 	workshopCmdZip  = workshopCmd.Flag("zip", "Create a ZIP archive instead.").Short('z').Bool()
 )
 
-func fatalError(msg string, args ...interface{}) {
-	if len(args) > 0 {
-		fmt.Printf("[error] %s (%s)\n", msg, args[0].(error).Error())
-	} else {
-		fmt.Printf("[error] %s\n", msg)
-	}
-	os.Exit(1)
-}
-
 func enableConfigBool(value *bool, docker *bool) {
 	if !*value && *docker {
 		*value = true

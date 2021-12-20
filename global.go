@@ -2,9 +2,21 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
+
+	"github.com/fatih/color"
 )
+
+func fatalError(msg string, args ...interface{}) {
+	if len(args) > 0 {
+		color.Red("Error: %s (%s)", msg, args[0].(error).Error())
+	} else {
+		color.Red("Error: %s", msg)
+	}
+	os.Exit(1)
+}
 
 func printTitle(str string) {
 	fmt.Printf("[%s]\n\n", strings.ToUpper(str))

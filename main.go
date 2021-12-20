@@ -32,6 +32,9 @@ var (
 
 	doctorCmd = app.Command("doctor", "Check health of this CLI app.")
 
+	formatCmd       = app.Command("format", "Code formatting tools: Prettier and StyLua.")
+	formatCmdDocker = formatCmd.Flag("docker", "Run through Docker.").Short('d').Bool()
+
 	infoCmd                      = app.Command("info", "Mod info tools.")
 	infoCmdPath                  = infoCmd.Arg("path", "Path to modinfo.lua.").Default("modinfo.lua").String()
 	infoCmdCompatibility         = infoCmd.Flag("compatibility", "Show compatibility fields.").Bool()
@@ -109,10 +112,17 @@ func runChangelog() {
 
 func runDoctor() {
 	d := NewDoctor(cfg)
-
 	if err := d.run(); err != nil {
 		fatalError("failed to run doctor command", err)
 	}
+}
+
+func runFormat() {
+	f, err := NewFormat(cfg)
+	if err != nil {
+		fatalError(err.Error())
+	}
+	f.run()
 }
 
 func runInfo() {
@@ -159,12 +169,17 @@ func main() {
 
 	loadConfig()
 
+	cfg.Format.Prettier.Docker = *formatCmdDocker
+	cfg.Format.StyLua.Docker = *formatCmdDocker
+
 	// commands
 	switch kingpin.MustParse(command, err) {
 	case changelogCmd.FullCommand():
 		runChangelog()
 	case doctorCmd.FullCommand():
 		runDoctor()
+	case formatCmd.FullCommand():
+		runFormat()
 	case infoCmd.FullCommand():
 		runInfo()
 	case workshopCmd.FullCommand():

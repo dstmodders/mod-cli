@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/dstmodders/mod-cli/tools"
@@ -8,8 +9,9 @@ import (
 )
 
 type Lint struct {
-	cfg   *Config
-	tools *tools.Tools
+	canRunLuacheck bool
+	cfg            *Config
+	tools          *tools.Tools
 }
 
 func NewLint(cfg *Config) (*Lint, error) {
@@ -27,6 +29,35 @@ func NewLint(cfg *Config) (*Lint, error) {
 		cfg:   cfg,
 		tools: t,
 	}, nil
+}
+
+func (l *Lint) checkTools() {
+	var errLuacheck error
+
+	//goland:noinspection ALL
+	err := errors.New("Luacheck is not available")
+
+	if !l.cfg.Lint.Luacheck.Enabled {
+		fatalError("Luacheck is disabled. Enable it first")
+	}
+
+	if l.cfg.Lint.Luacheck.Enabled {
+		errLuacheck = checkIfToolExists(l.tools.Docker, l.tools.Luacheck)
+		if errLuacheck == nil {
+			l.canRunLuacheck = true
+			err = nil
+		}
+	}
+
+	if l.canRunLuacheck {
+		if errLuacheck != nil {
+			printWarning(errLuacheck)
+		}
+	}
+
+	if err != nil {
+		fatalError(err)
+	}
 }
 
 func (l *Lint) printLint(lint tools.Lint) {
@@ -51,22 +82,20 @@ func (l *Lint) printLint(lint tools.Lint) {
 }
 
 func (l *Lint) runLuacheck() error {
-	checkIfToolExists(l.tools.Docker, l.tools.Luacheck)
 	lint, err := l.tools.Luacheck.Lint()
 	if err != nil {
 		return err
 	}
+
+	printTitle("Luacheck")
 	l.printLint(lint)
 	return nil
 }
 
 func (l *Lint) run() {
-	if !l.cfg.Lint.Luacheck.Enabled {
-		fatalError("Luacheck is disabled. Enable it first")
-	}
+	l.checkTools()
 
-	if l.cfg.Lint.Luacheck.Enabled {
-		printTitle("Luacheck")
+	if l.canRunLuacheck && l.cfg.Lint.Luacheck.Enabled {
 		_ = l.runLuacheck()
 	}
 }

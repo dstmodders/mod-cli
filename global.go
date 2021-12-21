@@ -10,35 +10,65 @@ import (
 	"github.com/fatih/color"
 )
 
-func fatalError(msg string, args ...interface{}) {
+func printError(err interface{}, args ...interface{}) {
+	msg := ""
+	switch e := err.(type) {
+	case error:
+		msg = e.Error()
+	case string:
+		msg = e
+	}
+
 	if len(args) > 0 {
 		color.Red("Error: %s (%s)\n", msg, args[0].(error).Error())
 	} else {
 		color.Red("Error: %s\n", msg)
 	}
+}
+
+func printWarning(err interface{}, args ...interface{}) {
+	msg := ""
+	switch e := err.(type) {
+	case error:
+		msg = e.Error()
+	case string:
+		msg = e
+	}
+
+	if len(args) > 0 {
+		color.Yellow("Warning: %s (%s)\n", msg, args[0].(error).Error())
+	} else {
+		color.Yellow("Warning: %s\n", msg)
+	}
+}
+
+func fatalError(err interface{}, args ...interface{}) {
+	printError(err, args...)
 	os.Exit(1)
 }
 
-func checkIfToolExists(docker tools.Tooler, tool tools.Tooler) {
+func checkIfToolExists(docker tools.Tooler, tool tools.Tooler) error {
 	if !tool.ExistsOnSystem() {
 		if !docker.ExistsOnSystem() {
-			fatalError(fmt.Sprintf(
+			return fmt.Errorf(
 				"neither %s nor %s are available on the system. Install at least %s",
 				tool.Name(),
 				docker.Name(),
 				docker.Name(),
-			))
+			)
 		}
 
 		if !tool.ExistsInDocker() {
-			fatalError(fmt.Sprintf(
-				"%s is not available neither on the system nor in Docker",
+			return fmt.Errorf(
+				"%s is not available neither on the system nor through Docker",
 				tool.Name(),
-			))
+			)
 		}
 
 		tool.SetRunInDocker(true)
 	}
+
+	return nil
 }
 
 func printTitle(str string) {

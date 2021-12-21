@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/dstmodders/mod-cli/tools"
@@ -8,8 +9,10 @@ import (
 )
 
 type Format struct {
-	cfg   *Config
-	tools *tools.Tools
+	canRunPrettier bool
+	canRunStyLua   bool
+	cfg            *Config
+	tools          *tools.Tools
 }
 
 func NewFormat(cfg *Config) (*Format, error) {
@@ -34,7 +37,47 @@ func NewFormat(cfg *Config) (*Format, error) {
 	}, nil
 }
 
-func (l *Format) printFormat(format tools.Format) {
+func (f *Format) checkTools() {
+	var errPrettier, errStyLua error
+
+	err := errors.New("neither Prettier nor StyLua are available")
+
+	if !f.cfg.Format.Prettier.Enabled && !f.cfg.Format.StyLua.Enabled {
+		fatalError("both Prettier and StyLua are disabled. Enable at least one of them first")
+	}
+
+	if f.cfg.Format.Prettier.Enabled {
+		errPrettier = checkIfToolExists(f.tools.Docker, f.tools.Prettier)
+		if errPrettier == nil {
+			f.canRunPrettier = true
+			err = nil
+		}
+	}
+
+	if f.cfg.Format.StyLua.Enabled {
+		errStyLua = checkIfToolExists(f.tools.Docker, f.tools.StyLua)
+		if errStyLua == nil {
+			f.canRunStyLua = true
+			err = nil
+		}
+	}
+
+	if f.canRunStyLua || f.canRunPrettier {
+		if errPrettier != nil {
+			printWarning(errPrettier)
+		}
+
+		if errStyLua != nil {
+			printWarning(errStyLua)
+		}
+	}
+
+	if err != nil {
+		fatalError(err)
+	}
+}
+
+func (f *Format) printFormat(format tools.Format) {
 	if len(format.Files) == 0 {
 		fmt.Println("No issues found")
 		return
@@ -53,59 +96,53 @@ func (l *Format) printFormat(format tools.Format) {
 	}
 }
 
-func (l *Format) runPrettier() (err error) {
-	checkIfToolExists(l.tools.Docker, l.tools.Prettier)
-
+func (f *Format) runPrettier() (err error) {
 	var format tools.Format
 
-	if l.cfg.Format.Prettier.Fix {
-		format, err = l.tools.Prettier.Fix()
+	if f.cfg.Format.Prettier.Fix {
+		format, err = f.tools.Prettier.Fix()
 	} else {
-		format, err = l.tools.Prettier.Check()
+		format, err = f.tools.Prettier.Check()
 	}
 
 	if err != nil {
 		return err
 	}
 
-	l.printFormat(format)
+	printTitle("Prettier")
+	f.printFormat(format)
 	return nil
 }
 
-func (l *Format) runStyLua() (err error) {
-	checkIfToolExists(l.tools.Docker, l.tools.StyLua)
-
+func (f *Format) runStyLua() (err error) {
 	var format tools.Format
 
-	if l.cfg.Format.StyLua.Fix {
-		format, err = l.tools.StyLua.Fix()
+	if f.cfg.Format.StyLua.Fix {
+		format, err = f.tools.StyLua.Fix()
 	} else {
-		format, err = l.tools.StyLua.Check()
+		format, err = f.tools.StyLua.Check()
 	}
 
 	if err != nil {
 		return err
 	}
 
-	l.printFormat(format)
+	printTitle("StyLua")
+	f.printFormat(format)
 	return nil
 }
 
-func (l *Format) run() {
-	if !l.cfg.Format.Prettier.Enabled && !l.cfg.Format.StyLua.Enabled {
-		fatalError("both Prettier and StyLua are disabled. Enable at least one of them first")
+func (f *Format) run() {
+	f.checkTools()
+
+	if f.canRunPrettier && f.cfg.Format.Prettier.Enabled {
+		_ = f.runPrettier()
 	}
 
-	if l.cfg.Format.Prettier.Enabled {
-		printTitle("Prettier")
-		_ = l.runPrettier()
-	}
-
-	if l.cfg.Format.StyLua.Enabled {
-		if l.cfg.Format.Prettier.Enabled {
+	if f.canRunStyLua && f.cfg.Format.StyLua.Enabled {
+		if f.canRunPrettier && f.cfg.Format.Prettier.Enabled {
 			fmt.Println()
 		}
-		printTitle("StyLua")
-		_ = l.runStyLua()
+		_ = f.runStyLua()
 	}
 }

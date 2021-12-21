@@ -29,6 +29,7 @@ type ConfigLint struct {
 type ConfigTool struct {
 	Docker  bool
 	Enabled bool
+	Fix     bool
 	Ignore  []string
 }
 
@@ -129,6 +130,12 @@ func (c *Config) parseYAMLTool(name string, value interface{}, dest *ConfigTool)
 
 		if val["docker"] != nil {
 			if err := c.toBool(name, val["docker"], &dest.Docker); err != nil {
+				return err
+			}
+		}
+
+		if val["fix"] != nil {
+			if err := c.toBool(name, val["fix"], &dest.Fix); err != nil {
 				return err
 			}
 		}

@@ -40,27 +40,53 @@ func (l *Format) printFormat(format tools.Format) {
 		return
 	}
 
+	var state string
+
 	for _, file := range format.Files {
-		fmt.Printf("%s %s\n", color.YellowString("warning"), file.Path)
+		switch file.State {
+		case tools.FileStateSuccess:
+			state = color.GreenString("success")
+		default:
+			state = color.YellowString("warning")
+		}
+		fmt.Printf("%s %s\n", state, file.Path)
 	}
 }
 
-func (l *Format) runPrettier() error {
+func (l *Format) runPrettier() (err error) {
 	checkIfToolExists(l.tools.Docker, l.tools.Prettier)
-	format, err := l.tools.Prettier.Check()
+
+	var format tools.Format
+
+	if l.cfg.Format.Prettier.Fix {
+		format, err = l.tools.Prettier.Fix()
+	} else {
+		format, err = l.tools.Prettier.Check()
+	}
+
 	if err != nil {
 		return err
 	}
+
 	l.printFormat(format)
 	return nil
 }
 
-func (l *Format) runStyLua() error {
+func (l *Format) runStyLua() (err error) {
 	checkIfToolExists(l.tools.Docker, l.tools.StyLua)
-	format, err := l.tools.StyLua.Check()
+
+	var format tools.Format
+
+	if l.cfg.Format.StyLua.Fix {
+		format, err = l.tools.StyLua.Fix()
+	} else {
+		format, err = l.tools.StyLua.Check()
+	}
+
 	if err != nil {
 		return err
 	}
+
 	l.printFormat(format)
 	return nil
 }

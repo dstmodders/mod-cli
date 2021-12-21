@@ -34,6 +34,7 @@ var (
 
 	formatCmd         = app.Command("format", "Code formatting tools: Prettier and StyLua.")
 	formatCmdDocker   = formatCmd.Flag("docker", "Run through Docker.").Short('d').Bool()
+	formatCmdFix      = formatCmd.Flag("fox", "Fix issues automatically. Beware!").Short('f').Bool()
 	formatCmdPrettier = formatCmd.Flag("prettier", "Run Prettier.").Short('p').Bool()
 	formatCmdStyLua   = formatCmd.Flag("stylua", "Run StyLua.").Short('s').Bool()
 
@@ -102,8 +103,12 @@ func loadConfig() {
 	// format
 	enableConfigBool(&cfg.Format.Prettier.Docker, formatCmdDocker)
 	enableConfigBool(&cfg.Format.StyLua.Docker, formatCmdDocker)
+
 	enableConfigBool(&cfg.Format.Prettier.Enabled, formatCmdPrettier)
 	enableConfigBool(&cfg.Format.StyLua.Enabled, formatCmdStyLua)
+
+	enableConfigBool(&cfg.Format.Prettier.Fix, formatCmdFix)
+	enableConfigBool(&cfg.Format.StyLua.Fix, formatCmdFix)
 
 	// lint
 	enableConfigBool(&cfg.Lint.Luacheck.Docker, lintCmdDocker)

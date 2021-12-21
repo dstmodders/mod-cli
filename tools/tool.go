@@ -51,6 +51,9 @@ type Format struct {
 type FormatFile struct {
 	// Path holds a file path.
 	Path string
+
+	// State holds a file state.
+	State FileState
 }
 
 // Lint represents a linting result.
@@ -63,9 +66,23 @@ type LintFile struct {
 	// Path holds a file path.
 	Path string
 
+	// State holds a file state.
+	State FileState
+
 	// Issues holds the number of found issues.
 	Issues int
 }
+
+// FileState represents a single linting or formatting file result state.
+type FileState int
+
+const (
+	// FileStateWarning represents a state of the file having some issues.
+	FileStateWarning FileState = iota
+
+	// FileStateSuccess represents a state of the file after successful fix.
+	FileStateSuccess
+)
 
 // NewTool creates a new Tool instance.
 func NewTool(name, cmd string) (*Tool, error) {

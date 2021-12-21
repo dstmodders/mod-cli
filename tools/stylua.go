@@ -58,13 +58,18 @@ func (s *StyLua) LoadVersion() (string, error) {
 		return "", err
 	}
 
-	buf := bytes.NewBuffer(make([]byte, 10))
+	buf := bytes.NewBuffer([]byte{})
 	_, err := io.Copy(buf, stdout)
 	if err != nil {
 		return "", err
 	}
 
-	ver, err := s.parseVersion(buf.String())
+	str := buf.String()
+	if len(str) == 0 {
+		return "", errors.New("no output")
+	}
+
+	ver, err := s.parseVersion(str)
 	if err != nil {
 		return ver, err
 	}

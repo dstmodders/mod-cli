@@ -46,10 +46,15 @@ func (l *Luacheck) LoadVersion() (string, error) {
 		return "", err
 	}
 
-	buf := bytes.NewBuffer(make([]byte, 10))
+	buf := bytes.NewBuffer([]byte{})
 	_, err := io.Copy(buf, stdout)
 	if err != nil {
 		return "", err
+	}
+
+	str := buf.String()
+	if len(str) == 0 {
+		return "", errors.New("no output")
 	}
 
 	ver, err := l.parseVersion(buf.String())

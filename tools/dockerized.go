@@ -1,21 +1,29 @@
 package tools
 
 import (
+	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 // Dockerized represents a Docker arguments to run a tool.
 type Dockerized struct {
-	// Image hold the image name and tag. By default: dstmodders/dst-mod:latest.
+	// Image hold the image name and tag.
+	//
+	// Default: dstmodders/dst-mod:latest
 	Image string
 
-	// Remove sets whether a container should be removed right after running. By
-	// default: true.
+	// Remove sets whether a container should be removed right after running.
+	//
+	// Default: true
 	Remove bool
 
-	// User holds a username or UID to run a container as. By default: dst-mod.
+	// User holds a username or UID to run a container as.
+	//
+	// Default: dst-mod
 	User string
 
 	// Volume holds a volume to mount. By default, points to a working directory.
@@ -38,6 +46,39 @@ func NewDockerized() *Dockerized {
 // Args returns arguments prepared using PrepareArgs.
 func (d *Dockerized) Args() []string {
 	return d.args
+}
+
+// IsImageAvailable checks whether an image is available.
+func (d *Dockerized) IsImageAvailable() bool {
+	cmd := exec.Command("docker", "image", "ls")
+
+	stdout, _ := cmd.StdoutPipe()
+
+	if err := cmd.Start(); err != nil {
+		return false
+	}
+
+	image := d.Image
+	tag := "latest"
+
+	split := strings.Split(d.Image, ":")
+	if len(split) == 2 {
+		image = split[0]
+		tag = split[1]
+	}
+
+	scanner := bufio.NewScanner(stdout)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.Contains(line, image) && strings.Contains(line, tag) {
+			return true
+		}
+	}
+
+	_ = cmd.Wait()
+
+	return false
 }
 
 // PrepareArgs prepare arguments to return later using Args.
@@ -74,4 +115,19 @@ func (d *Dockerized) PrepareArgs() (result []string, err error) {
 	d.args = result
 
 	return result, err
+}
+
+// PullImage pulls an image.
+func (d *Dockerized) PullImage() bool {
+	cmd := exec.Command("docker", "pull", d.Image)
+
+	if err := cmd.Start(); err != nil {
+		return false
+	}
+
+	if err := cmd.Wait(); err != nil {
+		return false
+	}
+
+	return true
 }

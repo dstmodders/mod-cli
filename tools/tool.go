@@ -17,6 +17,10 @@ type Tooler interface {
 	Path() string
 	Version() string
 	SetDockerized(*Dockerized) error
+	DockerImage() string
+	SetDockerImage(image string)
+	IsDockerImageAvailable() bool
+	PullDockerImage() bool
 	SetIgnore([]string)
 	SetRunInDocker(bool)
 	ExecCommand(...string) *exec.Cmd
@@ -138,6 +142,26 @@ func (t *Tool) SetDockerized(dockerized *Dockerized) error {
 	t.dockerized = dockerized
 	_, err := t.dockerized.PrepareArgs()
 	return err
+}
+
+// DockerImage gets the Docker image.
+func (t *Tool) DockerImage() string {
+	return t.dockerized.Image
+}
+
+// SetDockerImage sets the Docker image.
+func (t *Tool) SetDockerImage(image string) {
+	t.dockerized.Image = image
+}
+
+// IsDockerImageAvailable checks if the Docker image is available.
+func (t *Tool) IsDockerImageAvailable() bool {
+	return t.dockerized.IsImageAvailable()
+}
+
+// PullDockerImage pull the Docker image.
+func (t *Tool) PullDockerImage() bool {
+	return t.dockerized.PullImage()
 }
 
 // SetIgnore sets ignore list.

@@ -56,6 +56,11 @@ func checkIfToolExists(docker tools.Tooler, tool tools.Tooler) error {
 				docker.Name(),
 				docker.Name(),
 			)
+		} else {
+			if !tool.IsDockerImageAvailable() {
+				fmt.Printf("Pulling %s Docker image. It may take a few minutes...\n", tool.DockerImage())
+				tool.PullDockerImage()
+			}
 		}
 
 		if !tool.ExistsInDocker() {

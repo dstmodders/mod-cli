@@ -48,7 +48,7 @@ func (d *Dockerized) Args() []string {
 	return d.args
 }
 
-// IsImageAvailable checks whether an image is available.
+// IsImageAvailable checks whether an image is available locally.
 func (d *Dockerized) IsImageAvailable() bool {
 	cmd := exec.Command("docker", "image", "ls")
 
@@ -106,7 +106,7 @@ func (d *Dockerized) PrepareArgs() (result []string, err error) {
 	if len(volume) > 0 {
 		base := filepath.Base(volume)
 		result = append(result, "-v")
-		result = append(result, fmt.Sprintf("%s:/opt/%s", volume, base))
+		result = append(result, fmt.Sprintf("%s:/opt/%s:z", volume, base))
 		result = append(result, "-w")
 		result = append(result, fmt.Sprintf("/opt/%s", base))
 	}

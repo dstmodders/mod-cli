@@ -52,6 +52,7 @@ var (
 
 	lintCmd         = app.Command("lint", "Code linting tools: Luacheck.")
 	lintCmdDocker   = lintCmd.Flag("docker", "Run through Docker.").Short('d').Bool()
+	lintCmdFull     = lintCmd.Flag("full", "Show full output instead.").Short('f').Bool()
 	lintCmdLuacheck = lintCmd.Flag("luacheck", "Run Luacheck.").Short('l').Bool()
 
 	workshopCmd     = app.Command("workshop", "Steam Workshop tools.")
@@ -162,9 +163,12 @@ func runInfo() {
 
 func runLint() {
 	l, err := NewLint(cfg)
+	l.Full = *lintCmdFull
+
 	if err != nil {
 		fatalError(err.Error())
 	}
+
 	l.run()
 }
 

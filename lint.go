@@ -9,6 +9,7 @@ import (
 )
 
 type Lint struct {
+	Full           bool
 	canRunLuacheck bool
 	cfg            *Config
 	tools          *tools.Tools
@@ -61,6 +62,11 @@ func (l *Lint) checkTools() {
 }
 
 func (l *Lint) printLint(lint tools.Lint) {
+	if l.Full {
+		fmt.Println(lint.Stdout)
+		return
+	}
+
 	if len(lint.Files) == 0 {
 		fmt.Println("No issues found")
 		return

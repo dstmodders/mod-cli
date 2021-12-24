@@ -62,7 +62,8 @@ type FormatFile struct {
 
 // Lint represents a linting result.
 type Lint struct {
-	Files []LintFile
+	Files  []LintFile
+	Stdout string
 }
 
 // LintFile represents a single linting file.

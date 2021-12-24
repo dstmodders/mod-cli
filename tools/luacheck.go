@@ -75,6 +75,7 @@ func (l *Luacheck) Lint(arg ...string) (result Lint, err error) {
 
 	cmd := l.ExecCommand(arg...)
 	stdout, _ := cmd.StdoutPipe()
+	stdoutLines := []string{}
 
 	if err := cmd.Start(); err != nil {
 		return result, err
@@ -84,6 +85,7 @@ func (l *Luacheck) Lint(arg ...string) (result Lint, err error) {
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
 		line := scanner.Text()
+		stdoutLines = append(stdoutLines, line)
 		line = ansiRegex.ReplaceAllString(line, "")
 		matches := luacheckRegex.FindStringSubmatch(line)
 		if len(matches) > 0 {
@@ -98,6 +100,9 @@ func (l *Luacheck) Lint(arg ...string) (result Lint, err error) {
 			})
 		}
 	}
+
+	result.Stdout = strings.Join(stdoutLines, "\n")
+	result.Stdout = strings.TrimSpace(result.Stdout)
 
 	_ = cmd.Wait()
 

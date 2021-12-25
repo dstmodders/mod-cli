@@ -34,7 +34,7 @@ var (
 
 	formatCmd         = app.Command("format", "Code formatting tools: Prettier and StyLua.")
 	formatCmdDocker   = formatCmd.Flag("docker", "Run through Docker.").Short('d').Bool()
-	formatCmdFix      = formatCmd.Flag("fox", "Fix issues automatically. Beware!").Short('f').Bool()
+	formatCmdFix      = formatCmd.Flag("fix", "Fix issues automatically. Beware!").Short('f').Bool()
 	formatCmdPrettier = formatCmd.Flag("prettier", "Run Prettier.").Short('p').Bool()
 	formatCmdStyLua   = formatCmd.Flag("stylua", "Run StyLua.").Short('s').Bool()
 

@@ -68,6 +68,9 @@ func (l *Luacheck) LoadVersion() (string, error) {
 
 // Lint lints provided files.
 func (l *Luacheck) Lint(arg ...string) (result Lint, err error) {
+	var stdoutLines []string
+	var file LintFile
+
 	if len(arg) == 0 {
 		files, _, _ := l.workingDir.ListFiles(".lua")
 		arg = append(arg, files...)
@@ -75,7 +78,6 @@ func (l *Luacheck) Lint(arg ...string) (result Lint, err error) {
 
 	cmd := l.ExecCommand(arg...)
 	stdout, _ := cmd.StdoutPipe()
-	stdoutLines := []string{}
 
 	if err := cmd.Start(); err != nil {
 		return result, err
@@ -87,18 +89,45 @@ func (l *Luacheck) Lint(arg ...string) (result Lint, err error) {
 		line := scanner.Text()
 		stdoutLines = append(stdoutLines, line)
 		line = ansiRegex.ReplaceAllString(line, "")
-		matches := luacheckRegex.FindStringSubmatch(line)
-		if len(matches) > 0 {
-			issues, err := strconv.Atoi(matches[2])
+
+		if luacheckIssueRegex.MatchString(line) {
+			matches := luacheckIssueRegex.FindStringSubmatch(line)
+			if len(matches) != 5 {
+				continue
+			}
+
+			name := cleanString(matches[1])
+
+			if file.Path != name {
+				result.Files = append(result.Files, file)
+				file = LintFile{
+					Path:   name,
+					Issues: []LintFileIssue{},
+				}
+			}
+			file.Path = name
+
+			startLine, err := strconv.Atoi(matches[2])
 			if err != nil {
 				return result, err
 			}
 
-			result.Files = append(result.Files, LintFile{
-				Path:   strings.TrimSpace(matches[1]),
-				Issues: issues,
+			endLine, err := strconv.Atoi(matches[3])
+			if err != nil {
+				return result, err
+			}
+
+			file.Issues = append(file.Issues, LintFileIssue{
+				Name:        name,
+				StartLine:   startLine,
+				EndLine:     endLine,
+				Description: cleanString(matches[4]),
 			})
 		}
+	}
+
+	if len(result.Files) > 1 {
+		result.Files = result.Files[1:]
 	}
 
 	result.Stdout = strings.Join(stdoutLines, "\n")

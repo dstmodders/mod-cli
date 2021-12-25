@@ -2,12 +2,15 @@
 // though Docker.
 package tools
 
-import "regexp"
+import (
+	"regexp"
+	"strings"
+)
 
 // Taken from: https://github.com/acarl005/stripansi
 const ansiSemVer string = "[\u001B\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[a-zA-Z\\d]*)*)?\u0007)|(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PRZcf-ntqry=><~]))"
 
-const luacheckSemVer string = `Checking\s(.*\.lua)\s*(\d*)\s*warnings?`
+const luacheckIssue string = `(.*):(\d*):(\d*):\s*(.*)`
 
 const regexDockerVer string = `Docker version (.*), build (.*)`
 
@@ -16,15 +19,19 @@ const regexSemVer string = `v?([0-9]+)(\.[0-9]+)?(\.[0-9]+)?` +
 	`(\+([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?`
 
 var ansiRegex *regexp.Regexp
-var luacheckRegex *regexp.Regexp
+var luacheckIssueRegex *regexp.Regexp
 var versionRegex *regexp.Regexp
 var dockerVersionRegex *regexp.Regexp
 
 func init() {
 	ansiRegex = regexp.MustCompile(ansiSemVer)
-	luacheckRegex = regexp.MustCompile(luacheckSemVer)
+	luacheckIssueRegex = regexp.MustCompile(luacheckIssue)
 	versionRegex = regexp.MustCompile(regexSemVer)
 	dockerVersionRegex = regexp.MustCompile(regexDockerVer)
+}
+
+func cleanString(str string) string {
+	return strings.TrimSpace(ansiRegex.ReplaceAllString(str, ""))
 }
 
 // Controller is the interface that wraps the Tools methods.

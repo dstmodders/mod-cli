@@ -72,18 +72,37 @@ func (l *Lint) printLint(lint tools.Lint) {
 		return
 	}
 
-	for _, file := range lint.Files {
+	total := len(lint.Files)
+	for i := 0; i < total; i++ {
+		file := lint.Files[i]
+
 		issues := "issues"
-		if file.Issues == 1 {
+		if len(file.Issues) == 1 {
 			issues = "issue"
 		}
-		issues = fmt.Sprintf("%d %s", file.Issues, issues)
+		issues = fmt.Sprintf("%d %s", len(file.Issues), issues)
+
 		fmt.Printf(
 			"%s %s %s\n",
 			color.YellowString("warning"),
 			file.Path,
 			color.YellowString(issues),
 		)
+
+		fmt.Println()
+		for _, issue := range file.Issues {
+			fmt.Printf(
+				"    %s:%d:%d: %s\n",
+				issue.Name,
+				issue.StartLine,
+				issue.EndLine,
+				issue.Description,
+			)
+		}
+
+		if i < (total - 1) {
+			fmt.Println()
+		}
 	}
 }
 

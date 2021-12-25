@@ -74,8 +74,23 @@ type LintFile struct {
 	// State holds a file state.
 	State FileState
 
-	// Issues holds the number of found issues.
-	Issues int
+	// Issues holds the found issues.
+	Issues []LintFileIssue
+}
+
+// LintFileIssue represents a single issue in a file.
+type LintFileIssue struct {
+	// Name holds a file name.
+	Name string
+
+	// StartLine holds the start line number which corresponds to this issue.
+	StartLine int
+
+	// EndLine holds the end line number which corresponds to this issue.
+	EndLine int
+
+	// Issue holds the issue description.
+	Description string
 }
 
 // FileState represents a single linting or formatting file result state.

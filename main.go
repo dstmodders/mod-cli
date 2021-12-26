@@ -55,6 +55,8 @@ var (
 	lintCmdFull     = lintCmd.Flag("full", "Show full output instead.").Short('f').Bool()
 	lintCmdLuacheck = lintCmd.Flag("luacheck", "Run Luacheck.").Short('l').Bool()
 
+	testCmd = app.Command("test", "Testing tools: Busted.")
+
 	workshopCmd     = app.Command("workshop", "Steam Workshop tools.")
 	workshopCmdPath = workshopCmd.Arg("path", "Path to mod directory.").Default(".").ExistingDir()
 	workshopCmdList = workshopCmd.Flag("list", "Show only files that are going to be included.").Short('l').Bool()
@@ -172,6 +174,16 @@ func runLint() {
 	l.run()
 }
 
+func runTest() {
+	l, err := NewTest(cfg)
+
+	if err != nil {
+		fatalError(err.Error())
+	}
+
+	l.run()
+}
+
 func runWorkshop() {
 	w := NewWorkshop(cfg)
 	w.destName = *workshopCmdName
@@ -210,6 +222,8 @@ func main() {
 		runInfo()
 	case lintCmd.FullCommand():
 		runLint()
+	case testCmd.FullCommand():
+		runTest()
 	case workshopCmd.FullCommand():
 		runWorkshop()
 	}

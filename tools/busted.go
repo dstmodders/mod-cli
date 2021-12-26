@@ -1,7 +1,9 @@
 package tools
 
 import (
+	"bufio"
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -40,4 +42,26 @@ func (b *Busted) LoadVersion() (string, error) {
 	b.version = ver
 
 	return ver, nil
+}
+
+// Test runs tests.
+func (b *Busted) Test() (result Lint, err error) {
+	cmd := b.ExecCommand(".")
+	stdout, _ := cmd.StdoutPipe()
+
+	if err := cmd.Start(); err != nil {
+		return result, err
+	}
+
+	scanner := bufio.NewScanner(stdout)
+	scanner.Split(bufio.ScanRunes)
+	for scanner.Scan() {
+		r := scanner.Text()
+		r = ansiRegex.ReplaceAllString(r, "")
+		fmt.Print(r)
+	}
+
+	_ = cmd.Wait()
+
+	return result, nil
 }

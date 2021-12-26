@@ -35,6 +35,7 @@ func NewLint(cfg *Config) (*Lint, error) {
 func (l *Lint) checkTools() {
 	var errLuacheck error
 
+	//nolint:stylecheck
 	//goland:noinspection ALL
 	err := errors.New("Luacheck is not available")
 

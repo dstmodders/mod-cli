@@ -27,6 +27,7 @@ func NewTest(cfg *Config) (*Test, error) {
 func (t *Test) checkTools() {
 	var errBusted error
 
+	//nolint:stylecheck
 	//goland:noinspection ALL
 	err := errors.New("Busted is not available")
 

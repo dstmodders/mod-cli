@@ -9,7 +9,7 @@ import (
 )
 
 type Lint struct {
-	Full           bool
+	Original       bool
 	canRunLuacheck bool
 	cfg            *Config
 	tools          *tools.Tools
@@ -63,7 +63,7 @@ func (l *Lint) checkTools() {
 }
 
 func (l *Lint) printLint(lint tools.Lint) {
-	if l.Full {
+	if l.Original {
 		fmt.Println(lint.Stdout)
 		return
 	}

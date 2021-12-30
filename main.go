@@ -30,7 +30,7 @@ var (
 	changelogCmdList         = changelogCmd.Flag("list", "Show list of releases without changes.").Bool()
 	changelogCmdListVersions = changelogCmd.Flag("list-versions", "Show list of versions.").Bool()
 
-	doctorCmd = app.Command("doctor", "Check health of this CLI app.")
+	doctorCmd = app.Command("doctor", "Check health of this CLI app.").Hidden()
 
 	formatCmd         = app.Command("format", "Code formatting tools: Prettier and StyLua.")
 	formatCmdDocker   = formatCmd.Flag("docker", "Run through Docker.").Short('d').Bool()

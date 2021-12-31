@@ -13,6 +13,7 @@ tasks.
 - [format](./readme/format.md)
 - [info](./readme/info.md)
 - [lint](./readme/lint.md)
+- [test](./readme/test.md)
 - [workshop](./readme/workshop.md)
 
 ## Contributing

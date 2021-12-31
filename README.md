@@ -12,6 +12,7 @@ tasks.
 - [changelog](./readme/changelog.md)
 - [format](./readme/format.md)
 - [info](./readme/info.md)
+- [lint](./readme/lint.md)
 - [workshop](./readme/workshop.md)
 
 ## Contributing

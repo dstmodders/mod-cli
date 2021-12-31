@@ -9,6 +9,12 @@ tasks.
 
 ## Commands
 
+We will use [Dev Tools][] as an example for all commands below:
+
+```shell
+cd /your/path/to/mod-dev-tools/
+```
+
 - [changelog](./readme/changelog.md)
 - [format](./readme/format.md)
 - [info](./readme/info.md)
@@ -30,4 +36,5 @@ You can also use `go run .` to run it directly during the development.
 
 Released under the [MIT License](https://opensource.org/licenses/MIT).
 
+[dev tools]: https://github.com/dstmodders/mod-dev-tools
 [don't starve together]: https://www.klei.com/games/dont-starve-together

@@ -3,8 +3,8 @@
 ## Overview
 
 Command `lint` has been designed to run code linting tools. It acts as a wrapper
-to the original Luacheck CLI tool and can run it through Docker when not locally
-available on the system.
+to the original [Luacheck][] CLI tool and can run it through [Docker][] when not
+locally available on the system.
 
 - [Usage](#usage)
 - [Examples](#examples)
@@ -28,15 +28,6 @@ Flags:
 
 ## Examples
 
-For these examples, we will use [Dev Tools][] mod meaning that all the commands
-below will be executed within its mod directory:
-
-```shell
-cd your/path/to/mod-dev-tools/
-```
-
-- [Default](#default)
-
 ### Default
 
 ```txt
@@ -46,4 +37,5 @@ $ mod lint
 No issues found
 ```
 
-[dev tools]: https://github.com/dstmodders/mod-dev-tools
+[docker]: https://www.docker.com/
+[luacheck]: https://github.com/mpeterv/luacheck

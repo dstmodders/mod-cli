@@ -43,13 +43,6 @@ Args:
 
 ## Examples
 
-For these examples, we will use [Dev Tools][] mod meaning that all the commands
-below will be executed within its mod directory:
-
-```shell
-cd your/path/to/mod-dev-tools/
-```
-
 - [Default](#default)
 - [Configuration](#configuration-options)
 - [Configuration (Markdown)](#configuration-options-markdown)
@@ -171,5 +164,3 @@ $ mod info --first-line -m
 | **Disable mod warning**           | _Enabled_        | When enabled, disables the mod warning when starting the game           |
 | **Debug**                         | _Disabled_       | When enabled, displays debug data in the console.                       |
 ```
-
-[dev tools]: https://github.com/dstmodders/mod-dev-tools

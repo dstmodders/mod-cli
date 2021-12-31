@@ -34,13 +34,6 @@ Args:
 
 ## Examples
 
-For these examples, we will use [Dev Tools][] mod meaning that all the commands
-below will be executed within its mod directory:
-
-```shell
-cd your/path/to/mod-dev-tools/
-```
-
 ### Default
 
 ```txt
@@ -167,5 +160,3 @@ FIXED
 
 First release.
 ```
-
-[dev tools]: https://github.com/dstmodders/mod-dev-tools

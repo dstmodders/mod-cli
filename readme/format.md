@@ -3,8 +3,8 @@
 ## Overview
 
 Command `format` has been designed to run code formatting tools. It acts as a
-wrapper to the original CLI tools (Prettier and StyLua) and can run them through
-Docker when not locally available on the system.
+wrapper to the original CLI tools ([Prettier][] and [StyLua][]) and can run them
+through [Docker][] when not locally available on the system.
 
 - [Usage](#usage)
 - [Examples](#examples)
@@ -29,15 +29,6 @@ Flags:
 
 ## Examples
 
-For these examples, we will use [Dev Tools][] mod meaning that all the commands
-below will be executed within its mod directory:
-
-```shell
-cd your/path/to/mod-dev-tools/
-```
-
-- [Default](#default)
-
 ### Default
 
 ```txt
@@ -51,4 +42,6 @@ No issues found
 No issues found
 ```
 
-[dev tools]: https://github.com/dstmodders/mod-dev-tools
+[docker]: https://www.docker.com/
+[prettier]: https://prettier.io/
+[stylua]: https://github.com/JohnnyMorganz/StyLua

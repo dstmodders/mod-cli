@@ -10,6 +10,7 @@ tasks.
 ## Commands
 
 - [changelog](./readme/changelog.md)
+- [format](./readme/format.md)
 - [info](./readme/info.md)
 - [workshop](./readme/workshop.md)
 

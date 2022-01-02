@@ -119,6 +119,7 @@ func (d *Dockerized) PrepareArgs() (result []string, err error) {
 
 // PullImage pulls an image.
 func (d *Dockerized) PullImage() bool {
+	//nolint:gosec
 	cmd := exec.Command("docker", "pull", d.Image)
 
 	if err := cmd.Start(); err != nil {

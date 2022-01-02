@@ -26,6 +26,7 @@ func printError(err interface{}, args ...interface{}) {
 	}
 }
 
+//nolint:unparam
 func printWarning(err interface{}, args ...interface{}) {
 	msg := ""
 	switch e := err.(type) {

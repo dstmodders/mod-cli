@@ -66,6 +66,7 @@ func (l *Luacheck) LoadVersion() (string, error) {
 	return ver, nil
 }
 
+//nolint:funlen
 // Lint lints provided files.
 func (l *Luacheck) Lint(arg ...string) (result Lint, err error) {
 	var stdoutLines []string
